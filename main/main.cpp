@@ -12,6 +12,7 @@
 static lv_display_t * disp;
 
 // 在全局变量区域声明
+// ESP32S3包含两个核心，lvgl不是线程安全的，所以这里需要加锁用来绘制
 static SemaphoreHandle_t lvgl_mux = NULL;
 
 // 1. 刷新回调：将 LVGL 像素数据推送到屏幕
@@ -32,10 +33,23 @@ void lv_tick_task(void *arg) {
         if (xSemaphoreTakeRecursive(lvgl_mux, portMAX_DELAY)) {
             // 1. 计算两次运行之间的时间差，并喂给 LVGL
             uint32_t current_tick = esp_log_timestamp();
+            /**
+             * LVGL 所有的定时器（包括轮询触摸屏的定时器）都依赖于一个内部时钟计数器。
+             * 如果你使用的是 ESP-IDF 默认配置，LVGL 可能在等待你手动通过 lv_tick_inc(ms) 告诉它过了多久。
+             * 如果心跳一直是 0，LVGL 就会认为时间从未流逝，因此永远不会去触发“每隔 30ms 读一次触摸”的定时任务。
+             * 导致UI和触摸时间都不回调
+             */
             lv_tick_inc(current_tick - last_tick);
             last_tick = current_tick;
 
             // 2. 执行 handler
+            /**
+             * LVGL 是一个**驱动驱动型（Handler-driven）**的库。它本身并不会自发地在后台运行，必须依靠你周期性地调用 lv_timer_handler() 来处理以下任务：
+             * UI 渲染与刷新：计算哪些部件（Widgets）发生了变化，并调用 my_disp_flush 将像素推送到墨水屏。
+             * 输入处理：调用你在 setup_touch 中注册的 my_touchpad_read 回调，检测是否有点击动作。
+             * 动画与定时器：处理所有控件的动画效果以及各种 lv_timer 定时任务。
+             * 事件分发：当你点击屏幕时，它负责判定点击了哪个按钮，并触发你写的 list_event_handler 回调。
+             */
             lv_timer_handler(); 
             
             xSemaphoreGiveRecursive(lvgl_mux);
@@ -59,7 +73,7 @@ void my_touchpad_read(lv_indev_t * indev, lv_indev_data_t * data) {
     }
 }
 
-// 2. 在 app_main 的初始化部分注册它
+// 必须在lvgl_init之后才能调用
 void setup_touch() {
     printf("Setting up touch input device\n");
     lv_indev_t * indev = lv_indev_create();           // 创建输入设备
@@ -71,15 +85,7 @@ extern "C" void app_main(void) {
     // A. 初始化 M5Stack 硬件
     auto cfg = m5::M5Unified::config();
     M5.begin(cfg);
-    M5.Display.setBrightness(128);    
-
-    // 初始化SD卡
-    // sdcard_init();
-    // if (sdcard_mount() != ESP_OK) {
-    //     printf("Warning: SD card mounting failed, continuing without SD card\n");
-    // } else {
-    //     printf("SD card mounted successfully\n");
-    // }
+    M5.Display.setBrightness(128);        
 
     // B. 获取动态宽高
     int32_t disp_w = M5.Display.width();
