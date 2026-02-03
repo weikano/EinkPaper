@@ -6,6 +6,7 @@
 #include "file_manager/file_manager.h"
 #include "hal/sdcard/sdcard.h"
 #include "lvgl_list_demo.h"
+#include "themes.h"
 
 // LVGL 句柄
 static lv_display_t * disp;
@@ -90,8 +91,6 @@ extern "C" void app_main(void) {
     // C. 初始化 LVGL
     lv_init();
 
-    
-
     // D. 动态分配缓冲区 (分配 1/10 屏幕高度)
     uint32_t draw_buf_size = disp_w * (disp_h / 10) * sizeof(lv_color_t);
     void * draw_buf = heap_caps_malloc(draw_buf_size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
@@ -117,7 +116,7 @@ extern "C" void app_main(void) {
     lv_display_set_default(disp);
     lv_display_set_buffers(disp, draw_buf, NULL, draw_buf_size, LV_DISPLAY_RENDER_MODE_PARTIAL);
     lv_display_set_flush_cb(disp, my_disp_flush);
-
+    setup_global_font();
     if(M5.Touch.isEnabled()) {
         printf("Touch screen is enabled\n");   
         setup_touch();     

@@ -3,8 +3,7 @@
 void test_lvgl_list_demo(lv_obj_t* parent, int screen_width, int screen_height) {
     lv_obj_t* list = lv_list_create(parent);    
     lv_obj_set_size(list, screen_width - 20, screen_height - 20);
-    lv_obj_center(list);
-    lv_obj_set_style_text_font(list, &lv_font_source_han_sans_sc_16_cjk, 0);
+    lv_obj_center(list);    
     
     auto list_event_handler = [](lv_event_t* e) {
         lv_event_code_t code = lv_event_get_code(e);
@@ -26,8 +25,7 @@ void test_lvgl_list_demo(lv_obj_t* parent, int screen_width, int screen_height) 
                 lv_obj_set_style_bg_opa(bg, LV_OPA_TRANSP, 0);
             }
             lv_msgbox_add_title(mbox, "文件详情");
-            lv_msgbox_add_text(mbox, path);
-            lv_obj_set_style_text_font(mbox, &lv_font_source_han_sans_sc_16_cjk, 0);            
+            lv_msgbox_add_text(mbox, path);            
 
             // 获取返回的按钮对象
             lv_obj_t * ok_btn = lv_msgbox_add_footer_button(mbox, "确定");
