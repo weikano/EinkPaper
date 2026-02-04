@@ -42,6 +42,34 @@ static bool is_allowed_file_type(const char *filename) {
 }
 
 /**
+ * @brief 根据内容高度动态开启或关闭滚动
+ */
+static void update_list_scroll_spec() {
+    if (g_file_manager.list == NULL) return;
+
+    // 1. 强制更新布局，确保高度计算准确
+    lv_obj_update_layout(g_file_manager.list);
+
+    // 2. 获取列表容器本身的可视高度
+    lv_coord_t list_h = lv_obj_get_height(g_file_manager.list);
+    
+    // 3. 获取内部所有子项加起来的总内容高度
+    lv_coord_t content_h = lv_obj_get_content_height(g_file_manager.list);
+
+    if (content_h <= list_h) {
+        // 如果内容没超过屏幕，禁用滚动和弹性效果
+        lv_obj_clear_flag(g_file_manager.list, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_clear_flag(g_file_manager.list, LV_OBJ_FLAG_SCROLL_ELASTIC);
+        printf("Content small (%ld <= %ld): Scrolling disabled\n", content_h, list_h);
+    } else {
+        // 如果内容超出了，开启滚动，但为了墨水屏，依然建议禁用弹性回弹
+        lv_obj_add_flag(g_file_manager.list, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_clear_flag(g_file_manager.list, LV_OBJ_FLAG_SCROLL_ELASTIC); 
+        printf("Content large (%ld > %ld): Scrolling enabled\n", content_h, list_h);
+    }
+}
+
+/**
  * @brief 在列表中添加项目
  * @param list 列表对象
  * @param item_name 项目名称
@@ -49,9 +77,18 @@ static bool is_allowed_file_type(const char *filename) {
  */
 static void add_list_item(lv_obj_t *list, const char *item_name, const char *path) {
     struct stat st;
+    printf("add_list_item: %s, %s\n", item_name, path);
     bool is_dir = (stat(path, &st) == 0 && S_ISDIR(st.st_mode));
     
     lv_obj_t *btn = lv_list_add_btn(list, is_dir ? LV_SYMBOL_DIRECTORY : LV_SYMBOL_FILE, item_name);
+    lv_obj_t *label = lv_obj_get_child(btn, -1);
+    if(label) {
+        // 3. 强制设置为剪裁模式或省略号模式，这会自动停止所有滚动动画
+        lv_label_set_long_mode(label, LV_LABEL_LONG_DOT); 
+        
+        // 4. 确保宽度被限制，防止其尝试滚动
+        lv_obj_set_width(label, lv_pct(100));
+    }
     
     // 存储路径信息到按钮用户数据
     char *path_copy = (char*)heap_caps_malloc(strlen(path) + 1, MALLOC_CAP_SPIRAM);
@@ -240,6 +277,8 @@ static void load_directory_content(const char *path) {
     if (entries) {
         free(entries);
     }
+
+    update_list_scroll_spec();
 }
 
 /**
@@ -309,3 +348,4 @@ const char * file_manager_get_current_path(void) {
     
     return path_copy;
 }
+
