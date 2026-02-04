@@ -87,6 +87,8 @@ public:
      */
     virtual bool onTouch(int16_t x, int16_t y) override;
 
+    std::string className() const override { return "Dialog"; }
+
 private:
     m5gfx::M5GFX& _display;                    ///< 显示对象引用
     std::string _title;                        ///< 标题

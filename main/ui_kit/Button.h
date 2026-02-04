@@ -11,12 +11,10 @@ class Button : public TextView {
 public:
     /**
      * @brief 构造函数
-     * @param x X坐标
-     * @param y Y坐标
      * @param width 宽度
      * @param height 高度
      */
-    Button(int16_t x, int16_t y, int16_t width, int16_t height);
+    Button(int16_t width, int16_t height);
 
     /**
      * @brief 设置按钮按下时的背景颜色
@@ -37,6 +35,12 @@ public:
      * @return 如果处理了事件返回true，否则返回false
      */
     virtual bool onTouch(int16_t x, int16_t y) override;
+
+    /**
+     * @brief 获取类名
+     * @return 类名字符串
+     */
+    virtual std::string className() const override { return "Button"; }
 
 private:
     uint32_t _pressedColor;   ///< 按下时的背景颜色

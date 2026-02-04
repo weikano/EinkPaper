@@ -16,7 +16,7 @@ public:
      * @param width 宽度
      * @param height 高度
      */
-    FrameLayout(int16_t x, int16_t y, int16_t width, int16_t height);
+    FrameLayout(int16_t width, int16_t height);
 
     /**
      * @brief 重写布局方法
@@ -33,4 +33,6 @@ public:
      * @param heightMeasureSpec 父容器提供的高度约束
      */
     virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
+
+    std::string className() const override { return "FrameLayout"; }
 };

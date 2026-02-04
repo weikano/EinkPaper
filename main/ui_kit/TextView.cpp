@@ -1,11 +1,14 @@
 #include "TextView.h"
 
-TextView::TextView(int16_t x, int16_t y, int16_t width, int16_t height)
-    : View(x, y, width, height), _text(""), _textColor(TFT_BLACK), _textSize(1), _textAlign(0) {
+TextView::TextView(int16_t width, int16_t height)
+    : View(width, height), _text(""), _textColor(TFT_BLACK), _textSize(1), _textAlign(0) {
 }
 
 void TextView::setText(const std::string& text) {
-    _text = text;
+    if (_text != text) {
+        _text = text;
+        markDirty();  // 文本变化时标记为需要重绘
+    }
 }
 
 const std::string& TextView::getText() const {
@@ -13,15 +16,24 @@ const std::string& TextView::getText() const {
 }
 
 void TextView::setTextColor(uint32_t color) {
-    _textColor = color;
+    if (_textColor != color) {
+        _textColor = color;
+        markDirty();  // 颜色变化时标记为需要重绘
+    }
 }
 
 void TextView::setTextSize(uint8_t size) {
-    _textSize = size;
+    if (_textSize != size) {
+        _textSize = size;
+        markDirty();  // 字体大小变化时标记为需要重绘
+    }
 }
 
 void TextView::setTextAlign(uint8_t align) {
-    _textAlign = align;
+    if (_textAlign != align) {
+        _textAlign = align;
+        markDirty();  // 对齐方式变化时标记为需要重绘
+    }
 }
 
 void TextView::draw(m5gfx::M5GFX& display) {
@@ -36,23 +48,29 @@ void TextView::draw(m5gfx::M5GFX& display) {
         display.setTextColor(_textColor);
         display.setTextSize(_textSize);
         
-        int16_t textWidth = display.textWidth(_text.c_str());
-        int16_t drawX = _x;
+        // 考虑padding的可用绘制区域
+        int16_t contentX = _x + _paddingLeft;
+        int16_t contentY = _y + _paddingTop;
+        int16_t contentWidth = _width - _paddingLeft - _paddingRight;
+        int16_t contentHeight = _height - _paddingTop - _paddingBottom;
         
-        // 根据对齐方式计算文本绘制位置
+        int16_t textWidth = display.textWidth(_text.c_str());
+        int16_t drawX = contentX;
+        
+        // 根据对齐方式计算文本绘制位置（在内容区域内）
         switch (_textAlign) {
             case 1: // 居中对齐
-                drawX = _x + (_width - textWidth) / 2;
+                drawX = contentX + (contentWidth - textWidth) / 2;
                 break;
             case 2: // 右对齐
-                drawX = _x + _width - textWidth;
+                drawX = contentX + contentWidth - textWidth;
                 break;
             default: // 左对齐
-                drawX = _x;
+                drawX = contentX;
                 break;
         }
         
-        int16_t drawY = _y + (_height - display.fontHeight()) / 2;
+        int16_t drawY = contentY + (contentHeight - display.fontHeight()) / 2;
         
         display.setCursor(drawX, drawY);
         display.print(_text.c_str());

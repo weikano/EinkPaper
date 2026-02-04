@@ -1,8 +1,8 @@
 #include "ViewGroup.h"
 #include <algorithm>
 
-ViewGroup::ViewGroup(int16_t x, int16_t y, int16_t width, int16_t height)
-    : View(x, y, width, height) {
+ViewGroup::ViewGroup(int16_t width, int16_t height)
+    : View(width, height) {
 }
 
 ViewGroup::~ViewGroup() {
@@ -12,6 +12,9 @@ ViewGroup::~ViewGroup() {
 void ViewGroup::addChild(View* child) {
     if (child != nullptr) {
         _children.push_back(child);
+        child->setParent(this);  // 设置父视图引用
+        
+
     }
 }
 
@@ -44,14 +47,23 @@ void ViewGroup::draw(m5gfx::M5GFX& display) {
         return;
     }
 
-    // 绘制自身
-    View::draw(display);
+    // 只有当自身或子视图需要重绘时才进行绘制
+    if (isDirty()) {
+        // 确保视图组已正确布局
+        layout(_x, _y, _x + _width, _y + _height);
 
-    // 绘制所有子视图
-    for (auto child : _children) {
-        if (child->getVisibility() != GONE) {
-            child->draw(display);
+        // 绘制自身（背景、边框等）
+        View::draw(display);
+
+        // 绘制所有可见的子视图
+        for (auto child : _children) {
+            if (child->getVisibility() != GONE) {
+                child->draw(display);
+            }
         }
+        
+        // 标记为已绘制，清除脏标记
+        _isDirty = false;
     }
 }
 
@@ -80,4 +92,39 @@ void ViewGroup::measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
     for (auto child : _children) {
         child->measure(_width, _height);
     }
+}
+
+void ViewGroup::forceRedraw() {
+    _isDirty = true;
+    // 递归标记所有子视图也需要重绘
+    for (auto child : _children) {
+        child->forceRedraw();
+    }
+    // 通知父视图也需要重绘
+    if (_parent) {
+        _parent->markDirty();
+        _parent->notifyParentOfChange();  // 继续向上通知
+    }
+}
+
+bool ViewGroup::isDirty() const {
+    // 如果自身是脏的，返回true
+    if (_isDirty) {
+        return true;
+    }
+    
+    // 检查所有可见的子视图，如果有任意一个需要重绘，返回true
+    for (const auto& child : _children) {
+        if (child->getVisibility() != GONE && child->isDirty()) {
+            return true;
+        }
+    }
+    
+    // 如果自身和所有可见子视图都不需要重绘，返回false
+    return false;
+}
+
+void ViewGroup::notifyParentOfChange() {
+    // 调用基类的实现
+    View::notifyParentOfChange();
 }

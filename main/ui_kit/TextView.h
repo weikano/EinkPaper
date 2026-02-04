@@ -12,12 +12,10 @@ class TextView : public View {
 public:
     /**
      * @brief 构造函数
-     * @param x X坐标
-     * @param y Y坐标
      * @param width 宽度
      * @param height 高度
      */
-    TextView(int16_t x, int16_t y, int16_t width, int16_t height);
+    TextView(int16_t width, int16_t height);
 
     /**
      * @brief 设置文本内容
@@ -62,9 +60,15 @@ public:
      */
     virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
 
+    /**
+     * @brief 获取类名
+     * @return 类名字符串
+     */
+    virtual std::string className() const override { return "TextView"; }
+
 private:
     std::string _text;        ///< 文本内容
-    uint32_t _textColor;      ///< 文本颜色
+    uint32_t _textColor = TFT_BLACK;      ///< 文本颜色
     uint8_t _textSize;        ///< 文本大小
     uint8_t _textAlign;       ///< 文本对齐方式
 };

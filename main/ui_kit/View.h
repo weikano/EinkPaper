@@ -3,6 +3,9 @@
 #include "M5Unified.h"
 #include <functional>
 
+// 前向声明
+class ViewGroup;
+
 /**
  * @brief View基类 - 所有UI控件的基础
  * 
@@ -18,12 +21,10 @@ public:
 
     /**
      * @brief 构造函数
-     * @param x X坐标
-     * @param y Y坐标
      * @param width 宽度
      * @param height 高度
      */
-    View(int16_t x, int16_t y, int16_t width, int16_t height);
+    View(int16_t width, int16_t height);
 
     virtual ~View();
 
@@ -96,6 +97,39 @@ public:
     void setBorderWidth(uint8_t width);
 
     /**
+     * @brief 设置内边距
+     * @param left 左侧内边距
+     * @param top 顶部内边距
+     * @param right 右侧内边距
+     * @param bottom 底部内边距
+     */
+    void setPadding(uint8_t left, uint8_t top, uint8_t right, uint8_t bottom);
+
+    /**
+     * @brief 获取左侧内边距
+     * @return 左侧内边距值
+     */
+    uint8_t getPaddingLeft() const { return _paddingLeft; }
+
+    /**
+     * @brief 获取顶部内边距
+     * @return 顶部内边距值
+     */
+    uint8_t getPaddingTop() const { return _paddingTop; }
+
+    /**
+     * @brief 获取右侧内边距
+     * @return 右侧内边距值
+     */
+    uint8_t getPaddingRight() const { return _paddingRight; }
+
+    /**
+     * @brief 获取底部内边距
+     * @return 底部内边距值
+     */
+    uint8_t getPaddingBottom() const { return _paddingBottom; }
+
+    /**
      * @brief 检查点是否在视图范围内
      * @param x X坐标
      * @param y Y坐标
@@ -139,6 +173,41 @@ public:
      */
     void setOnClickListener(std::function<void()> callback);
 
+    /**
+     * @brief 检查视图是否需要重绘
+     * @return 如果需要重绘返回true，否则返回false
+     */
+    virtual bool isDirty() const { return _isDirty; }
+
+    /**
+     * @brief 标记视图为需要重绘
+     */
+    void markDirty();
+
+    /**
+     * @brief 获取最后绘制时间
+     * @return 最后绘制时间戳
+     */
+    int32_t getLastDrawTime() const { return _lastDrawTime; }
+
+    /**
+     * @brief 通知父视图需要重绘
+     */
+    virtual void notifyParentOfChange();
+    
+    /**
+     * @brief 设置父视图
+     * @param parent 父视图指针
+     */
+    void setParent(View* parent) { _parent = parent; }
+
+    /**
+     * @brief 强制标记整个视图树为需要重绘
+     */
+    virtual void forceRedraw();
+
+    virtual std::string className() const { return "View"; }
+
 protected:
     int16_t _x, _y;           ///< 视图的左上角坐标
     int16_t _width, _height;  ///< 视图的宽高
@@ -146,6 +215,14 @@ protected:
     uint32_t _backgroundColor;///< 背景颜色
     uint32_t _borderColor;    ///< 边框颜色
     uint8_t _borderWidth;     ///< 边框宽度
+    uint8_t _paddingLeft;     ///< 左侧内边距
+    uint8_t _paddingTop;      ///< 顶部内边距
+    uint8_t _paddingRight;    ///< 右侧内边距
+    uint8_t _paddingBottom;   ///< 底部内边距
     bool _isPressed;          ///< 是否被按下
     std::function<void()> _clickCallback; ///< 点击回调函数
+    bool _isDirty;            ///< 是否需要重绘
+    int32_t _lastDrawTime;    ///< 最后绘制时间戳
+    View* _parent;            ///< 父视图指针
+    bool _isInitialized;      ///< 对象是否已完全初始化
 };

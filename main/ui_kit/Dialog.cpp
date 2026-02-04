@@ -2,7 +2,7 @@
 #include <algorithm>
 
 Dialog::Dialog(m5gfx::M5GFX& display)
-    : FrameLayout(0, 0, 0, 0), _display(display), _isShowing(false), 
+    : FrameLayout(0, 0), _display(display), _isShowing(false), 
       _titleView(nullptr), _messageView(nullptr) {
     // 初始化按钮状态
     for (int i = 0; i < 3; i++) {
@@ -15,7 +15,7 @@ Dialog::Dialog(m5gfx::M5GFX& display)
 void Dialog::setTitle(const std::string& title) {
     _title = title;
     if (!_titleView) {
-        _titleView = new TextView(0, 0, 0, 0);
+        _titleView = new TextView(0, 0);
         _titleView->setTextSize(2);
         _titleView->setTextColor(TFT_BLACK);
         _titleView->setTextAlign(1); // 居中对齐
@@ -27,7 +27,7 @@ void Dialog::setTitle(const std::string& title) {
 void Dialog::setMessage(const std::string& message) {
     _message = message;
     if (!_messageView) {
-        _messageView = new TextView(0, 0, 0, 0);
+        _messageView = new TextView(0, 0);
         _messageView->setTextColor(TFT_BLACK);
         addChild(_messageView);
     }
@@ -39,7 +39,7 @@ void Dialog::setButton(ButtonId buttonId, const std::string& text) {
     _buttonsVisible[buttonId] = !text.empty();
     
     if (!text.empty() && !_buttons[buttonId]) {
-        _buttons[buttonId] = new Button(0, 0, 0, 0);
+        _buttons[buttonId] = new Button(0, 0);
         _buttons[buttonId]->setText(text);
         addChild(_buttons[buttonId]);
         

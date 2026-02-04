@@ -1,7 +1,7 @@
 #include "FrameLayout.h"
 
-FrameLayout::FrameLayout(int16_t x, int16_t y, int16_t width, int16_t height)
-    : ViewGroup(x, y, width, height) {
+FrameLayout::FrameLayout(int16_t width, int16_t height)
+    : ViewGroup(width, height) {
 }
 
 void FrameLayout::layout(int16_t left, int16_t top, int16_t right, int16_t bottom) {

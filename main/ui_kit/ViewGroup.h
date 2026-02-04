@@ -2,6 +2,7 @@
 
 #include "View.h"
 #include <vector>
+#include <map>
 
 /**
  * @brief ViewGroup - 可包含子视图的容器基类
@@ -12,12 +13,10 @@ class ViewGroup : public View {
 public:
     /**
      * @brief 构造函数
-     * @param x X坐标
-     * @param y Y坐标
      * @param width 宽度
      * @param height 高度
      */
-    ViewGroup(int16_t x, int16_t y, int16_t width, int16_t height);
+    ViewGroup(int16_t width, int16_t height);
 
     virtual ~ViewGroup();
 
@@ -72,6 +71,24 @@ public:
      */
     virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
 
+    /**
+     * @brief 检查视图组是否需要重绘
+     * @return 如果视图组或其任何可见子视图需要重绘返回true，否则返回false
+     */
+    virtual bool isDirty() const override;
+
+    /**
+     * @brief 强制标记整个视图树为需要重绘
+     */
+    virtual void forceRedraw() override;
+
+    /**
+     * @brief 通知父视图需要重绘
+     */
+    virtual void notifyParentOfChange() override;
+
 protected:
     std::vector<View*> _children;  ///< 子视图列表
+    std::map<View*, Visibility> _lastChildVisibilities;  ///< 记录上次子视图的可见性状态
+
 };

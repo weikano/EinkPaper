@@ -18,12 +18,10 @@ public:
 
     /**
      * @brief 构造函数
-     * @param x X坐标
-     * @param y Y坐标
      * @param width 宽度
      * @param height 高度
      */
-    ListView(int16_t x, int16_t y, int16_t width, int16_t height);
+    ListView(int16_t width, int16_t height);
 
     /**
      * @brief 设置数据项
@@ -81,6 +79,12 @@ public:
      * @param heightMeasureSpec 父容器提供的高度约束
      */
     virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
+
+    /**
+     * @brief 获取类名
+     * @return 类名字符串
+     */
+    virtual std::string className() const override { return "ListView"; }
 
 private:
     std::vector<std::string> _items;           ///< 数据项列表

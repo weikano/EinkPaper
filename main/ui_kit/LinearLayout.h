@@ -16,13 +16,11 @@ public:
 
     /**
      * @brief 构造函数
-     * @param x X坐标
-     * @param y Y坐标
      * @param width 宽度
      * @param height 高度
-     * @param orientation 排列方向
+     * @param orientation 布局方向
      */
-    LinearLayout(int16_t x, int16_t y, int16_t width, int16_t height, Orientation orientation = VERTICAL);
+    LinearLayout(int16_t width, int16_t height, Orientation orientation = VERTICAL);
 
     /**
      * @brief 设置布局方向
@@ -51,6 +49,8 @@ public:
      * @param heightMeasureSpec 父容器提供的高度约束
      */
     virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
+
+    std::string className() const override { return "LinearLayout"; }
 
 private:
     Orientation _orientation;  ///< 布局方向

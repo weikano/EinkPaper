@@ -1,10 +1,10 @@
 #include "Button.h"
 
-Button::Button(int16_t x, int16_t y, int16_t width, int16_t height)
-    : TextView(x, y, width, height), _pressedColor(TFT_LIGHTGREY) {
+Button::Button(int16_t width, int16_t height)
+    : TextView(width, height), _pressedColor(TFT_LIGHTGREY) {
     // 设置默认的按钮样式
-    setBackgroundColor(TFT_DARKGREY);
-    setTextColor(TFT_WHITE);
+    setBackgroundColor(TFT_WHITE);
+    setTextColor(TFT_BLACK);
     setTextAlign(1); // 居中对齐
 }
 
@@ -35,11 +35,24 @@ void Button::draw(m5gfx::M5GFX& display) {
 }
 
 bool Button::onTouch(int16_t x, int16_t y) {
+    bool wasPressed = _isPressed;
     if (contains(x, y)) {
         _isPressed = true;
         TextView::onTouch(x, y);
+        
+        // 如果按下状态发生变化，需要重绘按钮
+        if (wasPressed != _isPressed) {
+            markDirty();
+        }
+        
         return true;
     }
     _isPressed = false;
+    
+    // 如果按下状态发生变化，需要重绘按钮
+    if (wasPressed != _isPressed) {
+        markDirty();
+    }
+    
     return false;
 }

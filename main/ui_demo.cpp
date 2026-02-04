@@ -54,11 +54,11 @@ void onListItemClick(int index) {
 
 void setupUI() {
     // 创建根布局
-    mainLayout = new LinearLayout(0, 0, display.width(), display.height(), LinearLayout::VERTICAL);
+    mainLayout = new LinearLayout(display.width(), display.height(), LinearLayout::VERTICAL);
     mainLayout->setSpacing(10);
     
     // 创建标题
-    titleLabel = new TextView(10, 10, display.width() - 20, 40);
+    titleLabel = new TextView(display.width() - 20, 40);
     titleLabel->setText("M5GFX UI Kit 示例");
     titleLabel->setTextColor(TFT_BLUE);
     titleLabel->setTextSize(2);
@@ -67,17 +67,17 @@ void setupUI() {
     mainLayout->addChild(titleLabel);
     
     // 创建按钮布局
-    LinearLayout* buttonLayout = new LinearLayout(10, 60, display.width() - 20, 60, LinearLayout::HORIZONTAL);
+    LinearLayout* buttonLayout = new LinearLayout(display.width() - 20, 60, LinearLayout::HORIZONTAL);
     buttonLayout->setSpacing(10);
     
     // 创建按钮1
-    button1 = new Button(0, 0, (display.width() - 40) / 2, 40);
+    button1 = new Button((display.width() - 40) / 2, 40);
     button1->setText("按钮 1");
     button1->setOnClickListener(onButton1Click);
     buttonLayout->addChild(button1);
     
     // 创建按钮2
-    button2 = new Button(0, 0, (display.width() - 40) / 2, 40);
+    button2 = new Button((display.width() - 40) / 2, 40);
     button2->setText("按钮 2");
     button2->setOnClickListener(onButton2Click);
     buttonLayout->addChild(button2);
@@ -85,7 +85,7 @@ void setupUI() {
     mainLayout->addChild(buttonLayout);
     
     // 创建列表
-    listView = new ListView(10, 130, display.width() - 20, 150);
+    listView = new ListView(display.width() - 20, 150);
     listView->setBorderColor(TFT_DARKGREY);
     listView->setBorderWidth(1);
     
