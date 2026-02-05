@@ -49,27 +49,31 @@ void View::draw(m5gfx::M5GFX& display) {
         return;
     }
 
-    if (_visibility == VISIBLE) {
-        // 绘制背景（考虑边框宽度）
-        int borderWidthOffset = _borderWidth > 0 ? _borderWidth : 0;
-        int drawX = _x + borderWidthOffset;
-        int drawY = _y + borderWidthOffset;
-        int drawWidth = _width - 2 * borderWidthOffset;
-        int drawHeight = _height - 2 * borderWidthOffset;
-        
-        // 墨水屏背景始终为白色
-        display.fillRect(drawX, drawY, drawWidth, drawHeight, TFT_WHITE);
-        
-        // 绘制边框
-        if (_borderWidth > 0) {
-            for (int i = 0; i < _borderWidth; i++) {
-                display.drawRect(_x + i, _y + i, _width - 2 * i, _height - 2 * i, _borderColor);
-            }
-        }
+    if (_visibility == VISIBLE && _isDirty) {
+        onDraw(display);
         
         // 标记为已绘制，清除脏标记
         _isDirty = false;
         _lastDrawTime = esp_log_timestamp();
+    }
+}
+
+void View::onDraw(m5gfx::M5GFX& display) {
+    // 绘制背景（考虑边框宽度）
+    int borderWidthOffset = _borderWidth > 0 ? _borderWidth : 0;
+    int drawX = _x + borderWidthOffset;
+    int drawY = _y + borderWidthOffset;
+    int drawWidth = _width - 2 * borderWidthOffset;
+    int drawHeight = _height - 2 * borderWidthOffset;
+    
+    // 墨水屏背景始终为白色
+    display.fillRect(drawX, drawY, drawWidth, drawHeight, TFT_WHITE);
+    
+    // 绘制边框
+    if (_borderWidth > 0) {
+        for (int i = 0; i < _borderWidth; i++) {
+            display.drawRect(_x + i, _y + i, _width - 2 * i, _height - 2 * i, _borderColor);
+        }
     }
 }
 
@@ -89,6 +93,13 @@ void View::layout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
     _y = top;
     _width = right - left;
     _height = bottom - top;
+    
+    onLayout(left, top, right, bottom);
+}
+
+void View::onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
+    // 子类可以重写此方法以实现自定义布局逻辑
+    // 当前实现为空，保留给子类扩展
 }
 
 bool View::onTouch(int16_t x, int16_t y) {

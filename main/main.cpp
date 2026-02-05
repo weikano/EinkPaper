@@ -50,21 +50,22 @@ extern "C" void app_main(void) {
         m5gfx::M5GFX& display = M5.Display;
         
         while(1) {
-            bool shouldUpdateDisplay = false;
+            
             
             // 更新触摸状态
             M5.update();
             auto touch = M5.Touch.getDetail(0);
-            
+            if (touch.wasDragged()) {
+                printf("Touch dragging at (%d, %d)\n", touch.x, touch.y);
+            }
+
             if (touch.wasPressed()) {
                 // 处理UI触摸事件
                 layout->onTouch(touch.x, touch.y);
-            }
+            } 
             
-            // 检查是否有视图需要重绘
-            if (layout->isDirty()) {
-                shouldUpdateDisplay = true;
-            }
+            bool shouldUpdateDisplay = layout->isDirty();
+                        
             
             if (shouldUpdateDisplay) {
                 printf("UI需要重绘\n");
