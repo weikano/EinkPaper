@@ -214,8 +214,7 @@ void file_manager_init(LinearLayout* parent) {
             g_file_manager.screen_layout->getWidth() - 20, 40);
         g_file_manager.title_view->setTextColor(TFT_BLACK);
         g_file_manager.title_view->setTextSize(2);
-        g_file_manager.title_view->setTextAlign(1); // 居中对齐
-        g_file_manager.title_view->setBackgroundColor(TFT_LIGHTGREY);
+        g_file_manager.title_view->setTextAlign(1); // 居中对齐        
         g_file_manager.title_view->setPadding(10, 10, 10, 10); // 设置内边距
         g_file_manager.screen_layout->addChild(g_file_manager.title_view);
         

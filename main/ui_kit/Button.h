@@ -16,11 +16,7 @@ public:
      */
     Button(int16_t width, int16_t height);
 
-    /**
-     * @brief 设置按钮按下时的背景颜色
-     * @param color 颜色值
-     */
-    void setPressedColor(uint32_t color);
+
 
     /**
      * @brief 重写绘制方法
@@ -42,6 +38,4 @@ public:
      */
     virtual std::string className() const override { return "Button"; }
 
-private:
-    uint32_t _pressedColor;   ///< 按下时的背景颜色
 };

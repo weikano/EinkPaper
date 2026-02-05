@@ -22,9 +22,7 @@ void View::setVisibility(Visibility visibility) {
     _visibility = visibility;
 }
 
-void View::setBackgroundColor(uint32_t color) {
-    _backgroundColor = color;
-}
+
 
 void View::setBorderColor(uint32_t color) {
     _borderColor = color;
@@ -59,7 +57,8 @@ void View::draw(m5gfx::M5GFX& display) {
         int drawWidth = _width - 2 * borderWidthOffset;
         int drawHeight = _height - 2 * borderWidthOffset;
         
-        display.fillRect(drawX, drawY, drawWidth, drawHeight, _backgroundColor);
+        // 墨水屏背景始终为白色
+        display.fillRect(drawX, drawY, drawWidth, drawHeight, TFT_WHITE);
         
         // 绘制边框
         if (_borderWidth > 0) {
@@ -120,6 +119,8 @@ void View::forceRedraw() {
     // 通知父视图需要重绘
     notifyParentOfChange();
 }
+
+
 
 void View::notifyParentOfChange() {
     // 通知父视图需要重绘

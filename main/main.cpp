@@ -17,7 +17,7 @@ extern "C" void app_main(void) {
     sdcard_init();
     
     // 初始清屏：使用 Quality 模式确保屏幕干净
-    M5.Display.setFont(&fonts::efontCN_16);
+    M5.Display.setFont(&fonts::efontCN_16_b);
     M5.Display.setEpdMode(lgfx::epd_mode_t::epd_quality);
     M5.Display.fillScreen(TFT_WHITE);
     M5.Display.display();
@@ -32,6 +32,10 @@ extern "C" void app_main(void) {
 
     // Button* button = new Button(100, 50);  // 只指定宽高，位置由LinearLayout决定
     // button->setText("Click me");
+    // button->setOnClickListener([button]() {
+    //     printf("Button clicked!\n");
+    //     button->setText("Clicked!");
+    // });
 
     // mainLayout->addChild(button);
     
@@ -66,7 +70,7 @@ extern "C" void app_main(void) {
                 printf("UI需要重绘\n");
                 // 绘制UI
                 display.startWrite();
-                display.fillRect(0, 0, display.width(), display.height(), TFT_WHITE);
+                // display.fillRect(0, 0, display.width(), display.height(), TFT_WHITE);
                 layout->draw(display);
                 display.endWrite();
                 

@@ -62,8 +62,7 @@ void setupUI() {
     titleLabel->setText("M5GFX UI Kit 示例");
     titleLabel->setTextColor(TFT_BLUE);
     titleLabel->setTextSize(2);
-    titleLabel->setTextAlign(1); // 居中对齐
-    titleLabel->setBackgroundColor(TFT_LIGHTGREY);
+    titleLabel->setTextAlign(1); // 居中对齐    
     mainLayout->addChild(titleLabel);
     
     // 创建按钮布局

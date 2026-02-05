@@ -83,8 +83,7 @@ void Dialog::show() {
     setPosition(dialogX, dialogY);
     setSize(dialogWidth, dialogHeight);
     
-    // 设置背景色
-    setBackgroundColor(TFT_WHITE);
+    // 设置背景色    
     setBorderWidth(2);
     setBorderColor(TFT_BLACK);
     
