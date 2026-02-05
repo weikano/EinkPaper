@@ -24,7 +24,6 @@ typedef struct {
     char current_path[MAX_PATH_LEN];
     LinearLayout* screen_layout;
     ListView* file_list_view;
-    TextView* title_view;
     std::vector<std::string> file_items;          // 存储文件/目录项
     std::vector<std::string> file_full_paths;     // 存储完整路径
     std::vector<bool> is_directory;               // 标记是否为目录
@@ -159,16 +158,10 @@ static void load_directory_content(const char *path) {
 }
 
 /**
- * @brief 更新标题栏显示当前路径
+ * @brief 更新标题栏显示当前路径 - 已移除标题栏
  */
 static void update_title(void) {
-    if (g_file_browser.title_view) {
-        std::string title = "文件浏览器 - ";
-        title += g_file_browser.current_path;
-        g_file_browser.title_view->setText(title.c_str());
-        // 标题内容变化，需要重绘
-        g_file_browser.title_view->markDirty();
-    }
+    // 标题栏已移除，此函数为空操作
 }
 
 /**
@@ -208,17 +201,8 @@ void file_browser_init(LinearLayout* parent) {
     g_file_browser.screen_layout = parent ? parent : nullptr;
     
     if (g_file_browser.screen_layout) {
-        // 创建标题视图
-        g_file_browser.title_view = new TextView(
-            g_file_browser.screen_layout->getWidth() - 20, 40);
-        g_file_browser.title_view->setTextColor(TFT_BLACK);
-        g_file_browser.title_view->setTextSize(2);
-        g_file_browser.title_view->setTextAlign(1); // 居中对齐        
-        g_file_browser.title_view->setPadding(10, 10, 10, 10); // 设置内边距
-        g_file_browser.screen_layout->addChild(g_file_browser.title_view);
-        
-        // 创建文件列表视图
-        int list_height = g_file_browser.screen_layout->getHeight() - 70;
+        // 创建文件列表视图 - 使用全部可用高度
+        int list_height = g_file_browser.screen_layout->getHeight() - 20; // 减少边距
         g_file_browser.file_list_view = new ListView(
         g_file_browser.screen_layout->getWidth() - 20, list_height);
         g_file_browser.file_list_view->setRowCount(12); // 设置显示行数     

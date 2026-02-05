@@ -6,49 +6,49 @@
 #include "lgfx/Fonts/efont/lgfx_efont_cn.h"
 #include "page_manager/PageManager.h"
 #include "pages/file_browser/FileBrowserPage.h"
+#include "pages/file_browser/PagedFileBrowserPage.h"
 #include "pages/settings/SettingsPage.h"
 #include "pages/launcher/LauncherPage.h"
+#include "refresh_counter/RefreshCounter.h"
 #include "hal/sdcard/sdcard.h"
 #include "ui_kit/UIKIT.h"
 
-
-extern "C" void app_main(void) {
+extern "C" void app_main(void)
+{
     // A. 初始化硬件
-    auto cfg = m5::M5Unified::config();    
-    M5.begin(cfg);    
+    auto cfg = m5::M5Unified::config();
+    M5.begin(cfg);
 
     sdcard_init();
-    
+
     // 初始清屏：使用 Quality 模式确保屏幕干净
     M5.Display.setFont(&fonts::efontCN_16_b);
     M5.Display.setEpdMode(lgfx::epd_mode_t::epd_quality);
     M5.Display.fillScreen(TFT_WHITE);
-    M5.Display.display();
-
-    int32_t disp_w = M5.Display.width();
-    int32_t disp_h = M5.Display.height();
+    M5.Display.display();    
 
     // 获取页面管理器实例
-    PageManager& pageManager = PageManager::getInstance();
+    PageManager &pageManager = PageManager::getInstance();
     
-    // 注册页面类型
-    pageManager.registerPage(PageType::FILE_BROWSER, []() {
-        return std::make_unique<FileBrowserPage>();
-    });
-    
-    pageManager.registerPage(PageType::SETTINGS, []() {
-        return std::make_unique<SettingsPage>();
-    });
-    
-    pageManager.registerPage(PageType::MENU, []() {
-        return std::make_unique<LauncherPage>();
-    });
-    
+
+    pageManager.registerPage(PageType::FILE_BROWSER, []()
+                             { return std::make_unique<PagedFileBrowserPage>(); });
+
+    pageManager.registerPage(PageType::SETTINGS, []()
+                             { return std::make_unique<SettingsPage>(); });
+
+    pageManager.registerPage(PageType::MENU, []()
+                             { return std::make_unique<LauncherPage>(); });
+
     // 启动启动器页面（作为首页）
     pageManager.startActivity(PageType::MENU);
 
+    // 初始化刷新计数器
+    RefreshCounter::getInstance().init(10); // 每10次刷新执行一次全刷
+
     // UI主循环任务
-    xTaskCreatePinnedToCore([](void* param) {
+    xTaskCreatePinnedToCore([](void *param)
+                            {
         PageManager* pageMgr = static_cast<PageManager*>(param);
         m5gfx::M5GFX& display = M5.Display;
         
@@ -71,10 +71,9 @@ extern "C" void app_main(void) {
                 // 绘制当前页面
                 display.startWrite();
                 pageMgr->draw(display);
-                display.endWrite();
-                
-                // 显示更新
-                // M5.Display.setEpdMode(m5gfx::epd_mode_t::epd_fast);
+                display.endWrite();                
+                // 显示更新 - 使用刷新计数器来决定刷新模式
+                M5.Display.setEpdMode(RefreshCounter::getInstance().refresh());
                 M5.Display.display();
             }
             vTaskDelay(pdMS_TO_TICKS(50)); // 20 FPS
@@ -86,6 +85,5 @@ extern "C" void app_main(void) {
             //     // 如果没有更新，可以更长时间休眠以节省电力
             //     vTaskDelay(pdMS_TO_TICKS(50)); // 5 FPS - 更低的轮询频率
             // }
-        }
-    }, "ui_loop_task", 8192, &pageManager, 1, NULL, 1);
+        } }, "ui_loop_task", 8192, &pageManager, 1, NULL, 1);
 }

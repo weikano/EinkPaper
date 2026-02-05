@@ -8,6 +8,7 @@
 #include "LinearLayout.h"
 #include "FrameLayout.h"
 #include "ListView.h"
+#include "PagedListView.h"
 #include "Dialog.h"
 #include "../page_manager/Page.h"
 #include "../page_manager/PageManager.h"
