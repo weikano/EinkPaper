@@ -50,6 +50,12 @@ public:
      */
     virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
 
+    /**
+     * @brief 重写绘制方法
+     * @param display 显示对象
+     */
+    virtual void draw(m5gfx::M5GFX& display) override;
+
     std::string className() const override { return "LinearLayout"; }
 
 private:
