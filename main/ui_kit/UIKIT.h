@@ -9,3 +9,5 @@
 #include "FrameLayout.h"
 #include "ListView.h"
 #include "Dialog.h"
+#include "../page_manager/Page.h"
+#include "../page_manager/PageManager.h"

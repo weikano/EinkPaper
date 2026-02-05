@@ -4,7 +4,9 @@
 #include "M5Unified.h"
 #include "M5GFX.h"
 #include "lgfx/Fonts/efont/lgfx_efont_cn.h"
-#include "file_manager/file_manager.h"
+#include "page_manager/PageManager.h"
+#include "pages/file_browser/FileBrowserPage.h"
+#include "pages/settings/SettingsPage.h"
 #include "hal/sdcard/sdcard.h"
 #include "ui_kit/UIKIT.h"
 
@@ -25,28 +27,24 @@ extern "C" void app_main(void) {
     int32_t disp_w = M5.Display.width();
     int32_t disp_h = M5.Display.height();
 
-    // 初始化UI Kit组件
-    LinearLayout* mainLayout = new LinearLayout(disp_w, disp_h, LinearLayout::VERTICAL);
-    mainLayout->setSpacing(5);
-    mainLayout->setPadding(30, 30, 30, 30);
-
-    // Button* button = new Button(100, 50);  // 只指定宽高，位置由LinearLayout决定
-    // button->setText("Click me");
-    // button->setOnClickListener([button]() {
-    //     printf("Button clicked!\n");
-    //     button->setText("Clicked!");
-    // });
-
-    // mainLayout->addChild(button);
+    // 获取页面管理器实例
+    PageManager& pageManager = PageManager::getInstance();
     
-    // 初始化文件管理器
-    file_manager_init(mainLayout);
+    // 注册页面类型
+    pageManager.registerPage(PageType::FILE_BROWSER, []() {
+        return std::make_unique<FileBrowserPage>();
+    });
     
+    pageManager.registerPage(PageType::SETTINGS, []() {
+        return std::make_unique<SettingsPage>();
+    });
     
+    // 启动文件浏览器页面
+    pageManager.startActivity(PageType::FILE_BROWSER);
 
     // UI主循环任务
     xTaskCreatePinnedToCore([](void* param) {
-        LinearLayout* layout = static_cast<LinearLayout*>(param);
+        PageManager* pageMgr = static_cast<PageManager*>(param);
         m5gfx::M5GFX& display = M5.Display;
         
         while(1) {
@@ -60,19 +58,18 @@ extern "C" void app_main(void) {
             }
 
             if (touch.wasPressed()) {
-                // 处理UI触摸事件
-                layout->onTouch(touch.x, touch.y);
+                // 处理页面触摸事件
+                pageMgr->onTouch(touch.x, touch.y);
             } 
             
-            bool shouldUpdateDisplay = layout->isDirty();
+            bool shouldUpdateDisplay = pageMgr->getCurrentPage() ? pageMgr->getCurrentPage()->isDirty() : false;
                         
             
             if (shouldUpdateDisplay) {
                 printf("UI需要重绘\n");
-                // 绘制UI
+                // 绘制当前页面
                 display.startWrite();
-                // display.fillRect(0, 0, display.width(), display.height(), TFT_WHITE);
-                layout->draw(display);
+                pageMgr->draw(display);
                 display.endWrite();
                 
                 // 显示更新
@@ -89,5 +86,5 @@ extern "C" void app_main(void) {
                 vTaskDelay(pdMS_TO_TICKS(200)); // 5 FPS - 更低的轮询频率
             }
         }
-    }, "ui_loop_task", 8192, mainLayout, 1, NULL, 1);
+    }, "ui_loop_task", 8192, &pageManager, 1, NULL, 1);
 }

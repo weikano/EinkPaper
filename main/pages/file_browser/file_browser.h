@@ -1,5 +1,5 @@
-#ifndef FILE_MANAGER_H
-#define FILE_MANAGER_H
+#ifndef FILE_BROWSER_H
+#define FILE_BROWSER_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,22 +18,22 @@ extern "C" {
 typedef void (*FileSelectedCallback)(const char* filepath);
 
 /**
- * @brief 初始化文件管理器界面
+ * @brief 初始化文件浏览器界面
  * @param parent 父布局对象，如果为NULL则创建新的根布局
  */
-void file_manager_init(LinearLayout* parent);
+void file_browser_init(LinearLayout* parent);
 
 /**
  * @brief 打开指定目录
  * @param path 要打开的目录路径
  */
-void file_manager_open_directory(const char * path);
+void file_browser_open_directory(const char * path);
 
 /**
  * @brief 获取当前所在目录
  * @return 当前目录路径字符串
  */
-const char * file_manager_get_current_path(void);
+const char * file_browser_get_current_path(void);
 
 /**
  * @brief 注册文件选择回调函数
@@ -42,17 +42,17 @@ const char * file_manager_get_current_path(void);
 void register_file_selected_callback(FileSelectedCallback callback);
 
 /**
- * @brief 释放文件管理器资源
+ * @brief 释放文件浏览器资源
  */
-void file_manager_deinit(void);
+void file_browser_deinit(void);
 
 /**
  * @brief 手动触发界面刷新
  */
-void file_manager_force_refresh(void);
+void file_browser_force_refresh(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // FILE_MANAGER_H
+#endif // FILE_BROWSER_H

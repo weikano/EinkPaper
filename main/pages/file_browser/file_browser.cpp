@@ -1,4 +1,4 @@
-#include "file_manager.h"
+#include "file_browser.h"
 #include "ui_kit/UIKIT.h"
 #include "esp_log.h"
 #include "esp_heap_caps.h"
@@ -10,7 +10,7 @@
 #include <string>
 #include <algorithm>
 
-static const char *TAG = "FileManager";
+static const char *TAG = "FileBrowser";
 
 // 最大路径长度
 #define MAX_PATH_LEN 512
@@ -19,7 +19,7 @@ static const char *TAG = "FileManager";
 // 显示的文件名最大长度
 #define MAX_DISPLAY_NAME_LEN 64
 
-// 文件管理器状态结构
+// 文件浏览器状态结构
 typedef struct {
     char current_path[MAX_PATH_LEN];
     LinearLayout* screen_layout;
@@ -28,10 +28,10 @@ typedef struct {
     std::vector<std::string> file_items;          // 存储文件/目录项
     std::vector<std::string> file_full_paths;     // 存储完整路径
     std::vector<bool> is_directory;               // 标记是否为目录
-} file_manager_t;
+} file_browser_t;
 
-static file_manager_t g_file_manager = {};
-static SemaphoreHandle_t file_manager_mutex = NULL;
+static file_browser_t g_file_browser = {};
+static SemaphoreHandle_t file_browser_mutex = NULL;
 
 // 回调函数指针定义
 static FileSelectedCallback file_selected_callback = nullptr;
@@ -44,8 +44,7 @@ static FileSelectedCallback file_selected_callback = nullptr;
 static bool is_allowed_file_type(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext != NULL) {
-        if (strcasecmp(ext, ".txt") == 0 || strcasecmp(ext, ".epub") == 0 || 
-            strcasecmp(ext, ".pdf") == 0 || strcasecmp(ext, ".mobi") == 0) {
+        if (strcasecmp(ext, ".txt") == 0 || strcasecmp(ext, ".epub") == 0) {
             return true;
         }
     }
@@ -77,9 +76,9 @@ static void load_directory_content(const char *path) {
     struct dirent *entry;
     
     // 清空现有列表
-    g_file_manager.file_items.clear();
-    g_file_manager.file_full_paths.clear();
-    g_file_manager.is_directory.clear();
+    g_file_browser.file_items.clear();
+    g_file_browser.file_full_paths.clear();
+    g_file_browser.is_directory.clear();
     
     dir = opendir(path);
     if (dir == NULL) {
@@ -132,9 +131,9 @@ static void load_directory_content(const char *path) {
             strcpy(parent_path, "/"); // 根目录情况
         }
         
-        g_file_manager.file_items.push_back(".. (上级目录)");
-        g_file_manager.file_full_paths.push_back(std::string(parent_path));
-        g_file_manager.is_directory.push_back(true);
+        g_file_browser.file_items.push_back(".. (上级目录)");
+        g_file_browser.file_full_paths.push_back(std::string(parent_path));
+        g_file_browser.is_directory.push_back(true);
     }
     
     // 添加所有目录项到列表
@@ -147,15 +146,15 @@ static void load_directory_content(const char *path) {
             display_name = "[DIR] " + display_name;
         }
         printf("display_name: %s\n", display_name.c_str());
-        g_file_manager.file_items.push_back(display_name);
-        g_file_manager.file_full_paths.push_back(entry.second);
-        g_file_manager.is_directory.push_back(is_dir);
+        g_file_browser.file_items.push_back(display_name);
+        g_file_browser.file_full_paths.push_back(entry.second);
+        g_file_browser.is_directory.push_back(is_dir);
     }
     
     // 更新UI
-    if (g_file_manager.file_list_view) {
-        g_file_manager.file_list_view->setItems(g_file_manager.file_items);
-        g_file_manager.file_list_view->markDirty();        
+    if (g_file_browser.file_list_view) {
+        g_file_browser.file_list_view->setItems(g_file_browser.file_items);
+        g_file_browser.file_list_view->markDirty();        
     }
 }
 
@@ -163,12 +162,12 @@ static void load_directory_content(const char *path) {
  * @brief 更新标题栏显示当前路径
  */
 static void update_title(void) {
-    if (g_file_manager.title_view) {
+    if (g_file_browser.title_view) {
         std::string title = "文件浏览器 - ";
-        title += g_file_manager.current_path;
-        g_file_manager.title_view->setText(title.c_str());
+        title += g_file_browser.current_path;
+        g_file_browser.title_view->setText(title.c_str());
         // 标题内容变化，需要重绘
-        g_file_manager.title_view->markDirty();
+        g_file_browser.title_view->markDirty();
     }
 }
 
@@ -176,16 +175,16 @@ static void update_title(void) {
  * @brief 文件列表项点击回调
  */
 static void on_file_item_click(int index) {
-    if (index < 0 || index >= (int)g_file_manager.file_full_paths.size()) {
+    if (index < 0 || index >= (int)g_file_browser.file_full_paths.size()) {
         return;
     }
     
-    const std::string& path = g_file_manager.file_full_paths[index];
-    bool is_dir = g_file_manager.is_directory[index];
+    const std::string& path = g_file_browser.file_full_paths[index];
+    bool is_dir = g_file_browser.is_directory[index];
     
     if (is_dir) {
         // 是目录，进入该目录
-        file_manager_open_directory(path.c_str());
+        file_browser_open_directory(path.c_str());
     } else {
         // 是文件，触发文件选择回调
         ESP_LOGI(TAG, "Selected file: %s", path.c_str());
@@ -196,69 +195,69 @@ static void on_file_item_click(int index) {
     }
 }
 
-void file_manager_init(LinearLayout* parent) {
+void file_browser_init(LinearLayout* parent) {
     // 创建互斥锁
-    if (!file_manager_mutex) {
-        file_manager_mutex = xSemaphoreCreateMutex();
+    if (!file_browser_mutex) {
+        file_browser_mutex = xSemaphoreCreateMutex();
     }
     
     // 初始化当前路径
-    strcpy(g_file_manager.current_path, "/sdcard/books");
+    strcpy(g_file_browser.current_path, "/sdcard/books");
     
     // 初始化UI组件
-    g_file_manager.screen_layout = parent ? parent : nullptr;
+    g_file_browser.screen_layout = parent ? parent : nullptr;
     
-    if (g_file_manager.screen_layout) {
+    if (g_file_browser.screen_layout) {
         // 创建标题视图
-        g_file_manager.title_view = new TextView(
-            g_file_manager.screen_layout->getWidth() - 20, 40);
-        g_file_manager.title_view->setTextColor(TFT_BLACK);
-        g_file_manager.title_view->setTextSize(2);
-        g_file_manager.title_view->setTextAlign(1); // 居中对齐        
-        g_file_manager.title_view->setPadding(10, 10, 10, 10); // 设置内边距
-        g_file_manager.screen_layout->addChild(g_file_manager.title_view);
+        g_file_browser.title_view = new TextView(
+            g_file_browser.screen_layout->getWidth() - 20, 40);
+        g_file_browser.title_view->setTextColor(TFT_BLACK);
+        g_file_browser.title_view->setTextSize(2);
+        g_file_browser.title_view->setTextAlign(1); // 居中对齐        
+        g_file_browser.title_view->setPadding(10, 10, 10, 10); // 设置内边距
+        g_file_browser.screen_layout->addChild(g_file_browser.title_view);
         
         // 创建文件列表视图
-        int list_height = g_file_manager.screen_layout->getHeight() - 70;
-        g_file_manager.file_list_view = new ListView(
-        g_file_manager.screen_layout->getWidth() - 20, list_height);
-        g_file_manager.file_list_view->setRowCount(12); // 设置显示行数     
-        g_file_manager.file_list_view->setOnItemClickListener(on_file_item_click);
-        g_file_manager.file_list_view->setPadding(20, 20, 20, 20); // 设置内边距
-        g_file_manager.screen_layout->addChild(g_file_manager.file_list_view);
+        int list_height = g_file_browser.screen_layout->getHeight() - 70;
+        g_file_browser.file_list_view = new ListView(
+        g_file_browser.screen_layout->getWidth() - 20, list_height);
+        g_file_browser.file_list_view->setRowCount(12); // 设置显示行数     
+        g_file_browser.file_list_view->setOnItemClickListener(on_file_item_click);
+        g_file_browser.file_list_view->setPadding(20, 20, 20, 20); // 设置内边距
+        g_file_browser.screen_layout->addChild(g_file_browser.file_list_view);
     }
     
     // 加载初始目录内容
-    file_manager_open_directory(g_file_manager.current_path);
+    file_browser_open_directory(g_file_browser.current_path);
 }
 
-void file_manager_open_directory(const char * path) {
-    if (!xSemaphoreTake(file_manager_mutex, portMAX_DELAY)) {
+void file_browser_open_directory(const char * path) {
+    if (!xSemaphoreTake(file_browser_mutex, portMAX_DELAY)) {
         return;
     }
     
     // 更新当前路径
-    strncpy(g_file_manager.current_path, path, MAX_PATH_LEN - 1);
-    g_file_manager.current_path[MAX_PATH_LEN - 1] = '\0';
+    strncpy(g_file_browser.current_path, path, MAX_PATH_LEN - 1);
+    g_file_browser.current_path[MAX_PATH_LEN - 1] = '\0';
     
     // 更新标题
     update_title();
     
     // 加载目录内容
-    load_directory_content(g_file_manager.current_path);
+    load_directory_content(g_file_browser.current_path);
     
-    xSemaphoreGive(file_manager_mutex);
+    xSemaphoreGive(file_browser_mutex);
 }
 
-const char * file_manager_get_current_path(void) {
-    if (!xSemaphoreTake(file_manager_mutex, portMAX_DELAY)) {
+const char * file_browser_get_current_path(void) {
+    if (!xSemaphoreTake(file_browser_mutex, portMAX_DELAY)) {
         return NULL;
     }
     
     static char path_copy[MAX_PATH_LEN];
-    strcpy(path_copy, g_file_manager.current_path);
+    strcpy(path_copy, g_file_browser.current_path);
     
-    xSemaphoreGive(file_manager_mutex);
+    xSemaphoreGive(file_browser_mutex);
     
     return path_copy;
 }
@@ -267,18 +266,18 @@ void register_file_selected_callback(FileSelectedCallback callback) {
     file_selected_callback = callback;
 }
 
-void file_manager_deinit(void) {
-    if (file_manager_mutex) {
-        vSemaphoreDelete(file_manager_mutex);
-        file_manager_mutex = NULL;
+void file_browser_deinit(void) {
+    if (file_browser_mutex) {
+        vSemaphoreDelete(file_browser_mutex);
+        file_browser_mutex = NULL;
     }
 }
 
 /**
  * @brief 手动触发界面刷新
  */
-void file_manager_force_refresh(void) {
-    if (g_file_manager.screen_layout) {
-        g_file_manager.screen_layout->forceRedraw();
+void file_browser_force_refresh(void) {
+    if (g_file_browser.screen_layout) {
+        g_file_browser.screen_layout->forceRedraw();
     }
 }

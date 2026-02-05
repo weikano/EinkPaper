@@ -59,6 +59,7 @@ void View::draw(m5gfx::M5GFX& display) {
 }
 
 void View::onDraw(m5gfx::M5GFX& display) {
+    printf("className: %s onDraw called\n", className().c_str());
     // 绘制背景（考虑边框宽度）
     int borderWidthOffset = _borderWidth > 0 ? _borderWidth : 0;
     int drawX = _x + borderWidthOffset;
