@@ -222,10 +222,10 @@ void file_manager_init(LinearLayout* parent) {
         // 创建文件列表视图
         int list_height = g_file_manager.screen_layout->getHeight() - 70;
         g_file_manager.file_list_view = new ListView(
-            g_file_manager.screen_layout->getWidth() - 20, list_height);
-        g_file_manager.file_list_view->setItemHeight(40); // 设置每项高度为40像素
+        g_file_manager.screen_layout->getWidth() - 20, list_height);
+        g_file_manager.file_list_view->setRowCount(12); // 设置显示行数     
         g_file_manager.file_list_view->setOnItemClickListener(on_file_item_click);
-        g_file_manager.file_list_view->setPadding(5, 5, 5, 5); // 设置内边距
+        g_file_manager.file_list_view->setPadding(20, 20, 20, 20); // 设置内边距
         g_file_manager.screen_layout->addChild(g_file_manager.file_list_view);
     }
     

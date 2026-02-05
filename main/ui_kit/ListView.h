@@ -36,10 +36,16 @@ public:
     size_t getItemCount() const;
 
     /**
-     * @brief 设置每项的高度
-     * @param itemHeight 每项的高度
+     * @brief 设置显示行数
+     * @param rowCount 显示行数
      */
-    void setItemHeight(int16_t itemHeight);
+    void setRowCount(int16_t rowCount);
+
+    /**
+     * @brief 获取显示行数
+     * @return 显示行数
+     */
+    int16_t getRowCount() const;
 
     /**
      * @brief 设置滚动偏移
@@ -81,6 +87,15 @@ public:
     virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
 
     /**
+     * @brief 重写布局方法
+     * @param left 左边界
+     * @param top 上边界
+     * @param right 右边界
+     * @param bottom 下边界
+     */
+    virtual void layout(int16_t left, int16_t top, int16_t right, int16_t bottom) override;
+
+    /**
      * @brief 获取类名
      * @return 类名字符串
      */
@@ -88,7 +103,7 @@ public:
 
 private:
     std::vector<std::string> _items;           ///< 数据项列表
-    int16_t _itemHeight;                       ///< 每项的高度
+    int16_t _rowCount;                         ///< 显示行数
     int16_t _scrollOffset;                     ///< 滚动偏移
     OnItemClickListener _itemClickListener;    ///< 项目点击监听器
 };
