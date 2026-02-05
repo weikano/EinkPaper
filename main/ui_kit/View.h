@@ -209,20 +209,19 @@ public:
     virtual std::string className() const { return "View"; }
 
 protected:
-    int16_t _x, _y;           ///< 视图的左上角坐标
-    int16_t _width, _height;  ///< 视图的宽高
-    Visibility _visibility;   ///< 可见性状态
-    uint32_t _backgroundColor;///< 背景颜色
-    uint32_t _borderColor;    ///< 边框颜色
-    uint8_t _borderWidth;     ///< 边框宽度
-    uint8_t _paddingLeft;     ///< 左侧内边距
-    uint8_t _paddingTop;      ///< 顶部内边距
-    uint8_t _paddingRight;    ///< 右侧内边距
-    uint8_t _paddingBottom;   ///< 底部内边距
-    bool _isPressed;          ///< 是否被按下
-    std::function<void()> _clickCallback; ///< 点击回调函数
-    bool _isDirty;            ///< 是否需要重绘
-    int32_t _lastDrawTime;    ///< 最后绘制时间戳
-    View* _parent;            ///< 父视图指针
-    bool _isInitialized;      ///< 对象是否已完全初始化
+    int16_t _x = 0, _y = 0;           ///< 视图的左上角坐标
+    int16_t _width = 0, _height = 0;  ///< 视图的宽高
+    Visibility _visibility = VISIBLE;   ///< 可见性状态
+    uint32_t _backgroundColor = TFT_WHITE;///< 背景颜色
+    uint32_t _borderColor = TFT_BLACK;    ///< 边框颜色
+    uint8_t _borderWidth = 1;     ///< 边框宽度
+    uint8_t _paddingLeft = 0;     ///< 左侧内边距
+    uint8_t _paddingTop = 0;      ///< 顶部内边距
+    uint8_t _paddingRight = 0;    ///< 右侧内边距
+    uint8_t _paddingBottom = 0;   ///< 底部内边距
+    bool _isPressed = false;          ///< 是否被按下
+    std::function<void()> _clickCallback = nullptr; ///< 点击回调函数
+    bool _isDirty = true;            ///< 是否需要重绘
+    int32_t _lastDrawTime = 0;    ///< 最后绘制时间戳
+    View* _parent = nullptr;            ///< 父视图指针
 };

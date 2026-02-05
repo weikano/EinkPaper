@@ -101,7 +101,7 @@ void ViewGroup::forceRedraw() {
         child->forceRedraw();
     }
     // 通知父视图也需要重绘
-    if (_parent) {
+    if (_parent && _parent != this) {
         _parent->markDirty();
         _parent->notifyParentOfChange();  // 继续向上通知
     }

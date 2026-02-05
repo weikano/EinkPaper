@@ -1,14 +1,8 @@
 #include "View.h"
 
 View::View(int16_t width, int16_t height)
-    : _x(0), _y(0), _width(width), _height(height),
-      _visibility(VISIBLE), _backgroundColor(TFT_WHITE),
-      _borderColor(TFT_BLACK), _borderWidth(1), 
-      _paddingLeft(0), _paddingTop(0), _paddingRight(0), _paddingBottom(0),
-      _isPressed(false), _clickCallback(nullptr),
-      _isDirty(true), _lastDrawTime(0), _parent(nullptr), _isInitialized(false) {
-    // 构造完成后再设置为true，避免在构造期间调用markDirty时触发父视图更新
-    _isInitialized = true;
+    : _width(width), _height(height),
+      _isDirty(true) {  // 新视图需要绘制
 }
 
 View::~View() {
@@ -115,8 +109,8 @@ void View::setOnClickListener(std::function<void()> callback) {
 
 void View::markDirty() {
     _isDirty = true;
-    // 通知父视图需要重绘，但仅在对象完全初始化后
-    if (_isInitialized && _parent && _parent != this) {
+    // 通知父视图需要重绘
+    if (_parent && _parent != this) {
         notifyParentOfChange();
     }
 }
@@ -129,6 +123,7 @@ void View::forceRedraw() {
 
 void View::notifyParentOfChange() {
     // 通知父视图需要重绘
+    // 确保_parent不为空且不等于自身以防止基本的循环引用
     if (_parent && _parent != this) {
         _parent->markDirty();
         _parent->notifyParentOfChange();  // 继续向上通知
