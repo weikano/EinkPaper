@@ -18,6 +18,7 @@ idf_component_register(SRCS "main.cpp"
                     "ui_kit/ListView.cpp" 
                     "ui_kit/PagedListView.cpp" 
                     "ui_kit/Dialog.cpp"
+                    "config/DeviceConfigManager.cpp"
                     "ui_demo.cpp"
-                    INCLUDE_DIRS "." "pages" "pages/file_browser" "pages/settings" "pages/launcher" "refresh_counter" "hal/sdcard" "ui_kit" "page_manager"
+                    INCLUDE_DIRS "." "pages" "pages/file_browser" "pages/settings" "pages/launcher" "refresh_counter" "hal/sdcard" "ui_kit" "page_manager" "config"
                     REQUIRES fatfs sdmmc spi_flash)

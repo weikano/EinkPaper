@@ -13,6 +13,8 @@
 #include "hal/sdcard/sdcard.h"
 #include "ui_kit/UIKIT.h"
 
+#include "config/DeviceConfigManager.h"
+
 extern "C" void app_main(void)
 {
     // A. 初始化硬件
@@ -20,6 +22,7 @@ extern "C" void app_main(void)
     M5.begin(cfg);
 
     sdcard_init();
+    DeviceConfigManager::getInstance().loadConfigFromSdCard();
 
     // 初始清屏：使用 Quality 模式确保屏幕干净
     M5.Display.setFont(&fonts::efontCN_16_b);
@@ -44,7 +47,8 @@ extern "C" void app_main(void)
     pageManager.startActivity(PageType::MENU);
 
     // 初始化刷新计数器
-    RefreshCounter::getInstance().init(10); // 每10次刷新执行一次全刷
+    RefreshCounter::getInstance().init(DeviceConfigManager::getInstance().getConfig().refreshInterval); // 每10次刷新执行一次全刷
+    // RefreshCounter::getInstance().init(10); // 每10次刷新执行一次全刷
 
     // UI主循环任务
     xTaskCreatePinnedToCore([](void *param)
