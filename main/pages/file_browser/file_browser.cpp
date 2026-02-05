@@ -187,7 +187,7 @@ static void on_file_item_click(int index) {
         file_browser_open_directory(path.c_str());
     } else {
         // 是文件，触发文件选择回调
-        ESP_LOGI(TAG, "Selected file: %s", path.c_str());
+        ESP_LOGI(TAG, "Selected file: %s", path.c_str());        
         // 这里可以添加打开文件的逻辑
         if (file_selected_callback) {
             file_selected_callback(path.c_str());

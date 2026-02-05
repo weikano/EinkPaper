@@ -5,26 +5,39 @@
 static const char* TAG = "SettingsPage";
 
 SettingsPage::SettingsPage() 
-    : Page(PageType::SETTINGS, "Settings"), _layout(nullptr) {
+    : Page(PageType::SETTINGS, "Settings"), _layout(nullptr), _backButton(nullptr) {
     ESP_LOGI(TAG, "SettingsPage constructed");
 }
 
 SettingsPage::~SettingsPage() {
     ESP_LOGI(TAG, "SettingsPage destructed");
-    if (_layout) {
-        delete _layout;
-        _layout = nullptr;
-    }
+    // 不需要手动删除控件，因为它们是_layout 的子控件，会在_layout 析构时自动清理
 }
 
 void SettingsPage::onCreate() {
     ESP_LOGI(TAG, "SettingsPage onCreate");
     
     // 创建主布局
-    auto screenWidth = M5.Lcd.width();
-    auto screenHeight = M5.Lcd.height();
-    _layout = new LinearLayout(screenWidth, screenHeight);
-    _layout->setOrientation(LinearLayout::Orientation::VERTICAL);
+    auto screenWidth = M5.Display.width();
+    auto screenHeight = M5.Display.height();
+    _layout = new FrameLayout(screenWidth, screenHeight);
+    
+    // 创建返回按钮
+    _backButton = new Button(200, 60);
+    _backButton->setText("返回");
+    _backButton->setOnClickListener([this]() {
+        ESP_LOGI(TAG, "Back button clicked");
+        // 使用PageManager返回上一个页面
+        PageManager::getInstance().goBack();
+    });
+    
+    // 手动设置按钮居中位置
+    int16_t buttonX = (screenWidth - _backButton->getWidth()) / 2;
+    int16_t buttonY = (screenHeight - _backButton->getHeight()) / 2;
+    _backButton->setPosition(buttonX, buttonY);
+    
+    // 添加按钮到布局
+    _layout->addChild(_backButton);
     
     // 设置页面根视图
     setRootView(_layout);

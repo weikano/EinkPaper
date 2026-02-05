@@ -1,25 +1,25 @@
 #pragma once
 
 #include "../page_manager/Page.h"
-#include "../ui_kit/FrameLayout.h"
+#include "../ui_kit/LinearLayout.h"
 #include "../ui_kit/Button.h"
 
 /**
- * @brief 设置页面类
+ * @brief 启动器页面类
  * 
- * 继承自Page类，提供设置功能
+ * 继承自Page类，提供应用启动界面，包含进入设置和文件浏览的入口
  */
-class SettingsPage : public Page {
+class LauncherPage : public Page {
 public:
     /**
      * @brief 构造函数
      */
-    SettingsPage();
+    LauncherPage();
 
     /**
      * @brief 析构函数
      */
-    ~SettingsPage();
+    ~LauncherPage();
 
     /**
      * @brief 页面创建回调
@@ -52,6 +52,7 @@ public:
     void onDestroy() override;
 
 private:
-    FrameLayout* _layout;   ///< 页面布局
-    Button* _backButton;    ///< 返回按钮
+    LinearLayout* _layout;      ///< 页面主布局
+    Button* _settingsButton;    ///< 设置按钮
+    Button* _fileBrowserButton; ///< 文件浏览器按钮
 };

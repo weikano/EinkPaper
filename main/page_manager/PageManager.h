@@ -145,4 +145,5 @@ private:
 
     std::unordered_map<PageType, std::function<std::unique_ptr<Page>()>> _pageFactories;  ///< 页面工厂映射表
     std::deque<std::unique_ptr<Page>> _pageStack;  ///< 页面栈（使用deque实现，支持遍历）
+    bool _pageTransitionOccurred = false;  ///< 页面转换标志
 };

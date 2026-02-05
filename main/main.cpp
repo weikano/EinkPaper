@@ -7,6 +7,7 @@
 #include "page_manager/PageManager.h"
 #include "pages/file_browser/FileBrowserPage.h"
 #include "pages/settings/SettingsPage.h"
+#include "pages/launcher/LauncherPage.h"
 #include "hal/sdcard/sdcard.h"
 #include "ui_kit/UIKIT.h"
 
@@ -39,8 +40,12 @@ extern "C" void app_main(void) {
         return std::make_unique<SettingsPage>();
     });
     
-    // 启动文件浏览器页面
-    pageManager.startActivity(PageType::FILE_BROWSER);
+    pageManager.registerPage(PageType::MENU, []() {
+        return std::make_unique<LauncherPage>();
+    });
+    
+    // 启动启动器页面（作为首页）
+    pageManager.startActivity(PageType::MENU);
 
     // UI主循环任务
     xTaskCreatePinnedToCore([](void* param) {
@@ -48,14 +53,10 @@ extern "C" void app_main(void) {
         m5gfx::M5GFX& display = M5.Display;
         
         while(1) {
-            
-            
+
             // 更新触摸状态
             M5.update();
-            auto touch = M5.Touch.getDetail(0);
-            if (touch.wasDragged()) {
-                printf("Touch dragging at (%d, %d)\n", touch.x, touch.y);
-            }
+            auto touch = M5.Touch.getDetail(0);            
 
             if (touch.wasPressed()) {
                 // 处理页面触摸事件
@@ -76,15 +77,15 @@ extern "C" void app_main(void) {
                 // M5.Display.setEpdMode(m5gfx::epd_mode_t::epd_fast);
                 M5.Display.display();
             }
-            
-            // 优化：如果没有需要更新的内容，适当延长延迟以节省电力
-            if (shouldUpdateDisplay) {
-                // 如果刚刚更新了显示，短暂延迟
-                vTaskDelay(pdMS_TO_TICKS(50)); // 20 FPS
-            } else {
-                // 如果没有更新，可以更长时间休眠以节省电力
-                vTaskDelay(pdMS_TO_TICKS(200)); // 5 FPS - 更低的轮询频率
-            }
+            vTaskDelay(pdMS_TO_TICKS(50)); // 20 FPS
+            // // 优化：如果没有需要更新的内容，适当延长延迟以节省电力
+            // if (shouldUpdateDisplay) {
+            //     // 如果刚刚更新了显示，短暂延迟
+            //     vTaskDelay(pdMS_TO_TICKS(50)); // 20 FPS
+            // } else {
+            //     // 如果没有更新，可以更长时间休眠以节省电力
+            //     vTaskDelay(pdMS_TO_TICKS(50)); // 5 FPS - 更低的轮询频率
+            // }
         }
     }, "ui_loop_task", 8192, &pageManager, 1, NULL, 1);
 }

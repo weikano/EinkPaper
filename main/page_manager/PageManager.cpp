@@ -61,6 +61,9 @@ void PageManager::startActivity(PageType pageType,
     // 将页面压入栈（使用deque的back操作模拟栈行为）
     _pageStack.push_back(std::move(newPage));
 
+    // 标记页面转换发生，需要重绘
+    _pageTransitionOccurred = true;
+    
     ESP_LOGD(TAG, "Started activity: %d", static_cast<int>(pageType));
 }
 
@@ -87,6 +90,11 @@ void PageManager::goBack() {
         resumedPage->onResume();
         ESP_LOGD(TAG, "Resumed page: %d", static_cast<int>(resumedPage->getType()));
     }
+
+    // 标记页面转换发生，需要重绘
+    _pageTransitionOccurred = true;
+    
+    ESP_LOGD(TAG, "Finished goBack operation");
 }
 
 void PageManager::startActivityClearTop(PageType pageType, 
@@ -103,6 +111,9 @@ void PageManager::startActivityClearTop(PageType pageType,
 
     // 启动新页面
     startActivity(pageType, params);
+    
+    // 标记页面转换发生，需要重绘
+    _pageTransitionOccurred = true;
 }
 
 void PageManager::draw(m5gfx::M5GFX& display) {
@@ -184,8 +195,16 @@ void PageManager::destroy() {
 }
 
 bool PageManager::isDirty() {
+    bool result = _pageTransitionOccurred;  // 页面转换发生时需要重绘
+    
     if (auto currentPage = getCurrentPage()) {
-        return currentPage->isDirty();
+        result |= currentPage->isDirty();
     }
-    return false;
+    
+    // 重置转换标志
+    if (_pageTransitionOccurred) {
+        _pageTransitionOccurred = false;
+    }
+    
+    return result;
 }

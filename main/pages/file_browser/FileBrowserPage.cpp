@@ -1,6 +1,7 @@
 #include "FileBrowserPage.h"
 #include "file_browser/file_browser.h"
 #include "page_manager/PageManager.h"
+#include "../ui_kit/UIKIT.h"
 #include "esp_log.h"
 
 static const char* TAG = "FileBrowserPage";
@@ -26,7 +27,12 @@ void FileBrowserPage::onCreate() {
     auto screenHeight = M5.Display.height();
     _layout = new LinearLayout(screenWidth, screenHeight);
     _layout->setOrientation(LinearLayout::Orientation::VERTICAL);
-    
+    Button *backButton = new Button(100, 40);
+    backButton->setText("返回");
+    backButton->setOnClickListener([]() {
+        PageManager::getInstance().goBack();
+    });
+    _layout->addChild(backButton);
     // 初始化文件浏览器
     file_browser_init(_layout);
     

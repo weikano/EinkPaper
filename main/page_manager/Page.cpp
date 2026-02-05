@@ -22,6 +22,10 @@ void Page::onStart() {
 
 void Page::onResume() {
     ESP_LOGD(TAG, "Page %s (type: %d) onResume", _pageName.c_str(), static_cast<int>(_pageType));
+    // 当页面恢复时，标记为需要重绘
+    if (_rootView != nullptr) {
+        _rootView->markDirty();
+    }
 }
 
 void Page::onPause() {
