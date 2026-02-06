@@ -380,9 +380,11 @@ bool PagedListView::onTouch(int16_t x, int16_t y) {
 bool PagedListView::onSwipe(TouchGestureDetector::SwipeDirection direction) {
     switch (direction) {
         case TouchGestureDetector::SwipeDirection::LEFT:
+        case TouchGestureDetector::SwipeDirection::UP:
             // 向左滑动，跳转到下一页
             return nextPage();
         case TouchGestureDetector::SwipeDirection::RIGHT:
+        case TouchGestureDetector::SwipeDirection::DOWN:
             // 向右滑动，跳转到上一页
             return prevPage();
         default:
