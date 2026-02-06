@@ -23,11 +23,19 @@ void ViewGroup::removeChild(View* child) {
         auto it = std::find(_children.begin(), _children.end(), child);
         if (it != _children.end()) {
             _children.erase(it);
+            // 注意：这里不删除 child 对象，因为可能在其他地方还有引用
+            // 子视图的生命周期管理留给调用者或 removeAllChildren
         }
     }
 }
 
 void ViewGroup::removeAllChildren() {
+    // 删除所有子视图对象以避免内存泄漏
+    for (auto child : _children) {
+        if (child != nullptr) {
+            delete child;
+        }
+    }
     _children.clear();
 }
 

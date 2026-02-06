@@ -10,6 +10,12 @@ Page::Page(PageType pageType, const std::string& pageName)
 
 Page::~Page() {
     ESP_LOGI(TAG, "Destroyed page: %s (type: %d)", _pageName.c_str(), static_cast<int>(_pageType));
+    
+    // 释放根视图及其所有子视图
+    if (_rootView != nullptr) {
+        delete _rootView;
+        _rootView = nullptr;
+    }
 }
 
 void Page::onCreate() {
