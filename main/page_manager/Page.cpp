@@ -57,9 +57,18 @@ void Page::draw(m5gfx::M5GFX& display) {
     }
 }
 
-bool Page::onTouch(int16_t x, int16_t y) {
+bool Page::onClick(int16_t x, int16_t y) {
     if (_rootView != nullptr) {
-        return _rootView->onTouch(x, y);
+        return _rootView->onTouch(x, y);  // View类仍使用onTouch，因为它是通用的触摸处理
     }
     return false;
+}
+
+void Page::onSwipe(TouchGestureDetector::SwipeDirection direction) {
+    // 将滑动事件传递给根视图
+    if (_rootView != nullptr) {
+        _rootView->onSwipe(direction);
+    }
+    ESP_LOGD(TAG, "Page %s (type: %d) received swipe event: %d", 
+             _pageName.c_str(), static_cast<int>(_pageType), direction);
 }

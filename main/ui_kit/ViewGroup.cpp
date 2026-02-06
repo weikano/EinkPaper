@@ -84,6 +84,19 @@ bool ViewGroup::onTouch(int16_t x, int16_t y) {
     return View::onTouch(x, y);
 }
 
+bool ViewGroup::onSwipe(TouchGestureDetector::SwipeDirection direction) {
+    // 首先检查子视图是否处理滑动事件
+    for (auto it = _children.rbegin(); it != _children.rend(); ++it) {
+        View* child = *it;
+        if (child->onSwipe(direction)) {
+            return true;
+        }
+    }
+
+    // 如果没有子视图处理，则由自己处理
+    return View::onSwipe(direction);
+}
+
 void ViewGroup::measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
     // 首先测量自己
     View::measure(widthMeasureSpec, heightMeasureSpec);

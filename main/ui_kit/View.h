@@ -2,6 +2,7 @@
 
 #include "M5Unified.h"
 #include <functional>
+#include "../gestures/TouchGestureDetector.h"
 
 // 前向声明
 class ViewGroup;
@@ -175,6 +176,13 @@ public:
      * @return 如果处理了事件返回true，否则返回false
      */
     virtual bool onTouch(int16_t x, int16_t y);
+
+    /**
+     * @brief 处理滑动事件
+     * @param direction 滑动方向
+     * @return 如果处理了事件返回true，否则返回false
+     */
+    virtual bool onSwipe(TouchGestureDetector::SwipeDirection direction);
 
     /**
      * @brief 设置点击回调函数

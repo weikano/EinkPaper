@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_log.h"
 #include "M5Unified.h"
 #include "ui_kit/UIKIT.h"
 
@@ -17,7 +18,7 @@ Dialog* dialog = nullptr;
 
 // 按钮点击回调
 void onButton1Click() {
-    printf("Button 1 clicked!\n");
+    ESP_LOGI("UIDemo", "Button 1 clicked!");
     
     // 创建并显示对话框
     if (dialog) {
@@ -30,7 +31,7 @@ void onButton1Click() {
 }
 
 void onButton2Click() {
-    printf("Button 2 clicked!\n");
+    ESP_LOGI("UIDemo", "Button 2 clicked!");
     
     // 创建并显示对话框
     if (dialog) {
@@ -42,7 +43,7 @@ void onButton2Click() {
 }
 
 void onListItemClick(int index) {
-    printf("List item %d clicked!\n", index);
+    ESP_LOGI("UIDemo", "List item %d clicked!", index);
     
     if (dialog) {
         dialog->setTitle("列表项点击");
@@ -106,7 +107,7 @@ void setupUI() {
     // 创建对话框
     dialog = new Dialog(display);
     dialog->setOnButtonClickListener([](int buttonId) {
-        printf("Dialog button %d clicked\n", buttonId);
+        ESP_LOGD("UIDemo", "Dialog button %d clicked", buttonId);
     });
 }
 

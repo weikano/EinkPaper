@@ -147,7 +147,7 @@ static void load_directory_content(const char *path) {
         if (is_dir) {
             display_name = "[DIR] " + display_name;
         }
-        printf("display_name: %s\n", display_name.c_str());
+        ESP_LOGD("FileBrowser", "display_name: %s", display_name.c_str());
         g_paged_file_browser.all_file_items.push_back(display_name);
         g_paged_file_browser.all_file_full_paths.push_back(entry.second);
         g_paged_file_browser.all_is_directory.push_back(is_dir);
@@ -266,7 +266,7 @@ static void item_renderer(m5gfx::M5GFX& display, int index, const std::string& i
     
     int16_t textX = x + 5;
     int16_t textY = y + (height - display.fontHeight()) / 2;
-    printf("Rendering item: %s at (%d, %d, %d, %d)\n", text.c_str(), textX, textY, width, height);
+    ESP_LOGV("FileBrowser", "Rendering item: %s at (%d, %d, %d, %d)", text.c_str(), textX, textY, width, height);
     display.setCursor(textX, textY);
     display.print(text.c_str());
 }

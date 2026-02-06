@@ -65,6 +65,13 @@ public:
     virtual bool onTouch(int16_t x, int16_t y) override;
 
     /**
+     * @brief 重写滑动处理方法，传递给子视图
+     * @param direction 滑动方向
+     * @return 如果处理了事件返回true，否则返回false
+     */
+    virtual bool onSwipe(TouchGestureDetector::SwipeDirection direction) override;
+
+    /**
      * @brief 重写测量方法，测量所有子视图
      * @param widthMeasureSpec 父容器提供的宽度约束
      * @param heightMeasureSpec 父容器提供的高度约束

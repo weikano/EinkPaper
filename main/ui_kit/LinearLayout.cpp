@@ -1,4 +1,5 @@
 #include "LinearLayout.h"
+#include "esp_log.h"
 #include <algorithm>
 
 LinearLayout::LinearLayout(int16_t width, int16_t height, Orientation orientation)
@@ -25,7 +26,7 @@ void LinearLayout::layout(int16_t left, int16_t top, int16_t right, int16_t bott
             if (child->getVisibility() == GONE) {
                 continue;
             }
-            printf("LinearLayout::layout: child->className() = %s\n", child->className().c_str());
+            ESP_LOGV("LinearLayout", "layout: child->className() = %s", child->className().c_str());
 
             int16_t childHeight = child->getHeight() > 0 ? child->getHeight() : 0; // 如果高度未定义，默认为0
             
@@ -49,7 +50,7 @@ void LinearLayout::layout(int16_t left, int16_t top, int16_t right, int16_t bott
             if (child->getVisibility() == GONE) {
                 continue;
             }
-            printf("LinearLayout::layout: child->className() = %s\n", child->className().c_str());
+            ESP_LOGV("LinearLayout", "layout: child->className() = %s", child->className().c_str());
 
             int16_t childWidth = child->getWidth() > 0 ? child->getWidth() : 0; // 如果宽度未定义，默认为0
             

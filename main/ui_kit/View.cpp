@@ -1,4 +1,5 @@
 #include "View.h"
+#include "esp_log.h"
 
 View::View(int16_t width, int16_t height)
     : _width(width), _height(height),
@@ -59,7 +60,7 @@ void View::draw(m5gfx::M5GFX& display) {
 }
 
 void View::onDraw(m5gfx::M5GFX& display) {
-    printf("className: %s onDraw called\n", className().c_str());
+    ESP_LOGV("View", "className: %s onDraw called", className().c_str());
     // 绘制背景（考虑边框宽度）
     int borderWidthOffset = _borderWidth > 0 ? _borderWidth : 0;
     int drawX = _x + borderWidthOffset;
@@ -111,6 +112,11 @@ bool View::onTouch(int16_t x, int16_t y) {
         }
         return true;
     }
+    return false;
+}
+
+bool View::onSwipe(TouchGestureDetector::SwipeDirection direction) {
+    // 默认实现：不处理滑动事件
     return false;
 }
 

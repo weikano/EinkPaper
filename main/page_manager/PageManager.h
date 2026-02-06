@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 #include <functional>
+#include "../gestures/TouchGestureDetector.h"
 
 /**
  * @brief 页面管理器 - 管理页面栈和页面生命周期
@@ -69,18 +70,24 @@ public:
     void draw(m5gfx::M5GFX& display);
 
     /**
-     * @brief 处理触摸事件
+     * @brief 处理点击事件
      * @param x X坐标
      * @param y Y坐标
      * @return 如果事件被处理返回true，否则返回false
      */
-    bool onTouch(int16_t x, int16_t y);
+    bool onClick(int16_t x, int16_t y);
 
     /**
      * @brief 获取当前页面
      * @return 当前页面指针，如果无页面则返回nullptr
      */
     Page* getCurrentPage();
+
+    /**
+     * @brief 获取当前页面名称
+     * @return 当前页面名称字符串
+     */
+    std::string getCurrentPageName();
 
     /**
      * @brief 检查是否有页面在栈中
@@ -118,6 +125,8 @@ public:
      * @return 如果需要重绘返回true，否则返回false
      */
     bool isDirty();
+
+    void onSwipe(TouchGestureDetector::SwipeDirection direction);
 
 private:
     /**

@@ -1,5 +1,6 @@
 #include "PagedListView.h"
 #include "TextView.h"
+#include "esp_log.h"
 #include <algorithm>
 #include <cmath>
 
@@ -19,7 +20,7 @@ PagedListView::PagedListView(int16_t width, int16_t height)
       _backCallback(nullptr) {
     _isDirty = true;
     refreshData();
-    printf("PagedListView created with width=%d, height=%d\n", width, height);
+    ESP_LOGD("PagedListView", "created with width=%d, height=%d", width, height);
 }
 
 void PagedListView::setRowCount(int16_t rowCount) {
@@ -374,6 +375,20 @@ bool PagedListView::onTouch(int16_t x, int16_t y) {
         }
 
     return false;
+}
+
+bool PagedListView::onSwipe(TouchGestureDetector::SwipeDirection direction) {
+    switch (direction) {
+        case TouchGestureDetector::SwipeDirection::LEFT:
+            // 向左滑动，跳转到下一页
+            return nextPage();
+        case TouchGestureDetector::SwipeDirection::RIGHT:
+            // 向右滑动，跳转到上一页
+            return prevPage();
+        default:
+            // 其他方向不处理
+            return false;
+    }
 }
 
 int16_t PagedListView::_getItemX(int index) const {

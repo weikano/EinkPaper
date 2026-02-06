@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_log.h"
 #include "M5Unified.h"
 #include "M5GFX.h"
 #include "lgfx/Fonts/efont/lgfx_efont_cn.h"
@@ -12,8 +13,13 @@
 #include "refresh_counter/RefreshCounter.h"
 #include "hal/sdcard/sdcard.h"
 #include "ui_kit/UIKIT.h"
+#include "gestures/TouchGestureDetector.h"
+#include "pages/file_browser/paged_file_browser.h"
 
 #include "config/DeviceConfigManager.h"
+
+static const char *TAG = "Main";
+
 
 extern "C" void app_main(void)
 {
@@ -55,6 +61,7 @@ extern "C" void app_main(void)
                             {
         PageManager* pageMgr = static_cast<PageManager*>(param);
         m5gfx::M5GFX& display = M5.Display;
+        TouchGestureDetector gestureDetector;
         
         while(1) {
 
@@ -62,16 +69,25 @@ extern "C" void app_main(void)
             M5.update();
             auto touch = M5.Touch.getDetail(0);            
 
-            if (touch.wasPressed()) {
-                // 处理页面触摸事件
-                pageMgr->onTouch(touch.x, touch.y);
+            // 更新手势检测器
+            TouchGestureDetector::SwipeDirection direction = gestureDetector.updateTouch(touch);
+            
+            if (direction != TouchGestureDetector::SwipeDirection::NONE) {
+                ESP_LOGD(TAG, "Detected swipe gesture: %d", direction);
+                // 检测到滑动手势
+                // 将滑动事件传递给当前页面
+                pageMgr->onSwipe(direction);
+            } else if (touch.wasPressed()) {
+                // 普通触摸事件（非滑动）
+                // 处理页面点击事件
+                pageMgr->onClick(touch.x, touch.y);
             } 
             
             bool shouldUpdateDisplay = pageMgr->getCurrentPage() ? pageMgr->getCurrentPage()->isDirty() : false;
                         
             
             if (shouldUpdateDisplay) {
-                printf("UI需要重绘\n");
+                ESP_LOGD(TAG, "UI需要重绘");
                 // 绘制当前页面
                 display.startWrite();
                 pageMgr->draw(display);
@@ -79,8 +95,9 @@ extern "C" void app_main(void)
                 // 显示更新 - 使用刷新计数器来决定刷新模式
                 M5.Display.setEpdMode(RefreshCounter::getInstance().refresh());
                 M5.Display.display();
-            }
-            vTaskDelay(pdMS_TO_TICKS(50)); // 20 FPS
+            }            
+            lgfx::v1::delay(10);
+            // vTaskDelay(pdMS_TO_TICKS(50)); // 20 FPS
             // // 优化：如果没有需要更新的内容，适当延长延迟以节省电力
             // if (shouldUpdateDisplay) {
             //     // 如果刚刚更新了显示，短暂延迟

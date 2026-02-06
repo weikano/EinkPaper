@@ -123,10 +123,10 @@ void PageManager::draw(m5gfx::M5GFX& display) {
     }
 }
 
-bool PageManager::onTouch(int16_t x, int16_t y) {
+bool PageManager::onClick(int16_t x, int16_t y) {
     if (!_pageStack.empty()) {
         auto currentPage = _pageStack.back().get();
-        return currentPage->onTouch(x, y);
+        return currentPage->onClick(x, y);
     }
     return false;
 }
@@ -136,6 +136,14 @@ Page* PageManager::getCurrentPage() {
         return _pageStack.back().get();
     }
     return nullptr;
+}
+
+std::string PageManager::getCurrentPageName() {
+    if (!_pageStack.empty()) {
+        auto currentPage = _pageStack.back().get();
+        return currentPage->getName();
+    }
+    return "";
 }
 
 bool PageManager::isPageInStack(PageType pageType) const {
@@ -207,4 +215,11 @@ bool PageManager::isDirty() {
     }
     
     return result;
+}
+
+void PageManager::onSwipe(TouchGestureDetector::SwipeDirection direction) {
+    if (!_pageStack.empty()) {
+        auto currentPage = _pageStack.back().get();
+        currentPage->onSwipe(direction);
+    }
 }

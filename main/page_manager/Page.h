@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "PageType.h"
+#include "../gestures/TouchGestureDetector.h"
 
 /**
  * @brief Page基类 - 所有页面的基础
@@ -83,12 +84,14 @@ public:
     void draw(m5gfx::M5GFX& display);
 
     /**
-     * @brief 处理触摸事件
+     * @brief 处理点击事件
      * @param x X坐标
      * @param y Y坐标
      * @return 如果处理了事件返回true，否则返回false
      */
-    bool onTouch(int16_t x, int16_t y);
+    bool onClick(int16_t x, int16_t y);
+
+    void onSwipe(TouchGestureDetector::SwipeDirection direction);
 
 
 

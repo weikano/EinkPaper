@@ -144,7 +144,7 @@ static void load_directory_content(const char *path) {
         if (is_dir) {
             display_name = "[DIR] " + display_name;
         }
-        printf("display_name: %s\n", display_name.c_str());
+        ESP_LOGD("FileBrowser", "display_name: %s", display_name.c_str());
         g_file_browser.file_items.push_back(display_name);
         g_file_browser.file_full_paths.push_back(entry.second);
         g_file_browser.is_directory.push_back(is_dir);
