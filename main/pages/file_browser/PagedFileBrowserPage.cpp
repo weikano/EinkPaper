@@ -14,10 +14,8 @@ PagedFileBrowserPage::PagedFileBrowserPage()
 
 PagedFileBrowserPage::~PagedFileBrowserPage() {
     ESP_LOGI(TAG, "PagedFileBrowserPage destructed");
-    if (_layout) {
-        delete _layout;
-        _layout = nullptr;
-    }
+    // 注意：_layout 作为 rootView 会被 Page 基类的析构函数自动删除
+    // 这里不需要手动删除，避免双重删除问题
 }
 
 void PagedFileBrowserPage::onCreate() {
