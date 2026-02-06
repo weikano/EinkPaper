@@ -121,6 +121,11 @@ public:
     void destroy();
     
     /**
+     * @brief 关闭当前活动页面
+     */
+    void finishActivity();
+
+    /**
      * @brief 检查当前页面是否需要重绘
      * @return 如果需要重绘返回true，否则返回false
      */

@@ -202,6 +202,34 @@ void PageManager::destroy() {
     }
 }
 
+void PageManager::finishActivity() {
+    if (!_pageStack.empty()) {
+        // 获取当前页面
+        auto currentPage = _pageStack.back().get();
+        
+        // 执行页面生命周期方法
+        currentPage->onPause();
+        currentPage->onStop();
+        currentPage->onDestroy();
+        
+        // 从页面栈中移除页面
+        _pageStack.pop_back();
+        
+        // 如果还有页面在栈中，恢复前一个页面
+        if (!_pageStack.empty()) {
+            auto previousPage = _pageStack.back().get();
+            previousPage->onRestart();
+            previousPage->onStart();
+            previousPage->onResume();
+        }
+        
+        _pageTransitionOccurred = true;
+        ESP_LOGD("PageManager", "Finished current activity, stack size: %zu", _pageStack.size());
+    } else {
+        ESP_LOGW("PageManager", "No activity to finish");
+    }
+}
+
 bool PageManager::isDirty() {
     bool result = _pageTransitionOccurred;  // 页面转换发生时需要重绘
     

@@ -55,4 +55,5 @@ private:
     LinearLayout* _layout;      ///< 页面主布局
     Button* _settingsButton;    ///< 设置按钮
     Button* _fileBrowserButton; ///< 文件浏览器按钮
+    Button* _messsageButton;    ///< 消息按钮
 };

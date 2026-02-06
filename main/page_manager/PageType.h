@@ -10,5 +10,6 @@ enum class PageType {
     READER,
     MENU,
     DIALOG,
+    MESSAGE,
     CUSTOM
 };

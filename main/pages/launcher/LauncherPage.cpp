@@ -1,6 +1,7 @@
 #include "LauncherPage.h"
 #include "page_manager/PageManager.h"
 #include "esp_log.h"
+#include "message/MessagePageHelper.h"
 
 static const char* TAG = "LauncherPage";
 
@@ -41,10 +42,19 @@ void LauncherPage::onCreate() {
         // 使用PageManager跳转到文件浏览器页面
         PageManager::getInstance().startActivity(PageType::FILE_BROWSER);
     });
+
+    _messsageButton = new Button(200, 60);
+    _messsageButton->setText("显示消息");
+    _messsageButton->setOnClickListener([this]() {
+        ESP_LOGI(TAG, "Message button clicked");
+        // 显示消息页面
+        showMessagePage("这是一个消息页面！");
+    });
     
     // 添加按钮到布局
     _layout->addChild(_settingsButton);
     _layout->addChild(_fileBrowserButton);
+    _layout->addChild(_messsageButton);
     
     // 设置页面根视图
     setRootView(_layout);
@@ -78,6 +88,7 @@ void LauncherPage::onDestroy() {
     // 清理资源
     _settingsButton = nullptr;
     _fileBrowserButton = nullptr;
+    _messsageButton = nullptr;
     _layout = nullptr;
     Page::onDestroy();
 }
