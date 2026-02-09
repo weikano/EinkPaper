@@ -19,8 +19,8 @@ void LinearLayout::layout(int16_t left, int16_t top, int16_t right, int16_t bott
 
     if (_orientation == VERTICAL) {
         // 垂直布局 - 从上边距开始
-        int16_t currentPos = _y + getPaddingTop();
-        int16_t maxBottom = _y + _height - getPaddingBottom(); // 最大允许的底部位置
+        int16_t currentPos = _top + getPaddingTop();
+        int16_t maxBottom = _top + _height - getPaddingBottom(); // 最大允许的底部位置
         
         for (auto child : _children) {
             if (child->getVisibility() == GONE) {
@@ -34,8 +34,8 @@ void LinearLayout::layout(int16_t left, int16_t top, int16_t right, int16_t bott
             int16_t childBottom = std::min<int16_t>(currentPos + childHeight, maxBottom);
             if (currentPos < maxBottom) { // 只有在还有空间时才布局
                 // 考虑左右padding
-                child->layout(_x + getPaddingLeft(), currentPos, 
-                             _x + _width - getPaddingRight(), childBottom);
+                child->layout(_left + getPaddingLeft(), currentPos, 
+                             _left + _width - getPaddingRight(), childBottom);
                 
                 // 更新当前位置
                 currentPos = childBottom + _spacing;
@@ -43,8 +43,8 @@ void LinearLayout::layout(int16_t left, int16_t top, int16_t right, int16_t bott
         }
     } else {
         // 水平布局 - 从左边距开始
-        int16_t currentPos = _x + getPaddingLeft();
-        int16_t maxRight = _x + _width - getPaddingRight(); // 最大允许的右边位置
+        int16_t currentPos = _left + getPaddingLeft();
+        int16_t maxRight = _left + _width - getPaddingRight(); // 最大允许的右边位置
         
         for (auto child : _children) {
             if (child->getVisibility() == GONE) {
@@ -58,8 +58,8 @@ void LinearLayout::layout(int16_t left, int16_t top, int16_t right, int16_t bott
             int16_t childRight = std::min<int16_t>(currentPos + childWidth, maxRight);
             if (currentPos < maxRight) { // 只有在还有空间时才布局
                 // 考虑上下padding
-                child->layout(currentPos, _y + getPaddingTop(), 
-                             childRight, _y + _height - getPaddingBottom());
+                child->layout(currentPos, _top + getPaddingTop(), 
+                             childRight, _top + _height - getPaddingBottom());
                 
                 // 更新当前位置
                 currentPos = childRight + _spacing;
@@ -76,7 +76,7 @@ void LinearLayout::draw(m5gfx::M5GFX& display) {
     // 只有当自身或子视图需要重绘时才进行绘制
     if (isDirty()) {
         // 确保视图组已正确布局
-        layout(_x, _y, _x + _width, _y + _height);
+        layout(_left, _top, _left + _width, _top + _height);
 
         // 绘制自身（背景、边框等）- 使用View的绘制方法
         View::draw(display);

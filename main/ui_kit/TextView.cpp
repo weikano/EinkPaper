@@ -49,8 +49,8 @@ void TextView::draw(m5gfx::M5GFX& display) {
         display.setTextSize(_textSize);
         
         // 考虑padding的可用绘制区域
-        int16_t contentX = _x + _paddingLeft;
-        int16_t contentY = _y + _paddingTop;
+        int16_t contentX = _left + _paddingLeft;
+        int16_t contentY = _top + _paddingTop;
         int16_t contentWidth = _width - _paddingLeft - _paddingRight;
         int16_t contentHeight = _height - _paddingTop - _paddingBottom;
         

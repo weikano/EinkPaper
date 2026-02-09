@@ -20,7 +20,7 @@ void Button::draw(m5gfx::M5GFX& display) {
     // 绘制边框
     if (_borderWidth > 0) {
         for (int i = 0; i < _borderWidth; i++) {
-            display.drawRect(_x + i, _y + i, _width - 2 * i, _height - 2 * i, _borderColor);
+            display.drawRect(_left + i, _top + i, _width - 2 * i, _height - 2 * i, _borderColor);
         }
     }
 }

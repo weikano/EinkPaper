@@ -188,8 +188,7 @@ void PagedListView::draw(m5gfx::M5GFX& display) {
     View::draw(display);
 
     if (_visibility == VISIBLE && _parent != nullptr) {
-        int itemCount = _currentPageItems.size();
-        int pageSize = _rowCount * _columnCount;
+        int itemCount = _currentPageItems.size();        
         
         // 绘制当前页的所有项目
         for (int i = 0; i < itemCount; i++) {
@@ -204,8 +203,8 @@ void PagedListView::draw(m5gfx::M5GFX& display) {
             if (itemH <= 0) itemH = 10;  // 设置最小高度
             
             // 确保坐标在合理范围内
-            itemX = std::max(static_cast<int16_t>(_x), itemX);
-            itemY = std::max(static_cast<int16_t>(_y), itemY);
+            itemX = std::max(static_cast<int16_t>(_left), itemX);
+            itemY = std::max(static_cast<int16_t>(_top), itemY);
             
             if (_itemRenderer) {
                 // 使用自定义渲染器绘制项目
@@ -258,11 +257,11 @@ void PagedListView::draw(m5gfx::M5GFX& display) {
         
         // 绘制底部控制栏
         int16_t controlBarHeight = 30;
-        int16_t controlBarY = _y + _height - controlBarHeight;
+        int16_t controlBarY = _top + _height - controlBarHeight;
         
         // 绘制控制栏背景
-        display.fillRect(_x, controlBarY, _width, controlBarHeight, TFT_WHITE);
-        display.drawRect(_x, controlBarY, _width, controlBarHeight, TFT_BLACK);
+        display.fillRect(_left, controlBarY, _width, controlBarHeight, TFT_WHITE);
+        display.drawRect(_left, controlBarY, _width, controlBarHeight, TFT_BLACK);
         
         // 计算各按钮和文本的位置
         int16_t buttonWidth = 60;
@@ -270,7 +269,7 @@ void PagedListView::draw(m5gfx::M5GFX& display) {
         int16_t padding = 5;
         
         // "上一页"按钮
-        int16_t prevButtonX = _x + padding;
+        int16_t prevButtonX = _left + padding;
         int16_t prevButtonY = controlBarY + (controlBarHeight - buttonHeight) / 2;
         display.fillRect(prevButtonX, prevButtonY, buttonWidth, buttonHeight, TFT_WHITE);
         display.drawRect(prevButtonX, prevButtonY, buttonWidth, buttonHeight, TFT_BLACK);
@@ -283,21 +282,20 @@ void PagedListView::draw(m5gfx::M5GFX& display) {
         // 页码信息
         std::string pageInfo = "第 " + std::to_string(_currentPage + 1) + "/" + std::to_string(_totalPages) + " 页";
         int16_t pageInfoWidth = display.textWidth(pageInfo.c_str());
-        int16_t pageInfoX = _x + padding + buttonWidth + padding;
+        int16_t pageInfoX = _left + padding + buttonWidth + padding;
         int16_t pageInfoY = controlBarY + (controlBarHeight - display.fontHeight()) / 2;
         display.setCursor(pageInfoX, pageInfoY);
         display.print(pageInfo.c_str());
         
         // 总数信息（在页码旁边）
-        std::string totalCountInfo = "(" + std::to_string(_totalItems) + "项)";
-        int16_t totalCountWidth = display.textWidth(totalCountInfo.c_str());
+        std::string totalCountInfo = "(" + std::to_string(_totalItems) + "项)";        
         int16_t totalCountX = pageInfoX + pageInfoWidth + padding;
         int16_t totalCountY = pageInfoY;
         display.setCursor(totalCountX, totalCountY);
         display.print(totalCountInfo.c_str());
         
         // "下一页"按钮
-        int16_t nextButtonX = _x + _width - buttonWidth * 2 - padding * 2;  // 调整位置为倒数第二个按钮
+        int16_t nextButtonX = _left + _width - buttonWidth * 2 - padding * 2;  // 调整位置为倒数第二个按钮
         int16_t nextButtonY = controlBarY + (controlBarHeight - buttonHeight) / 2;
         display.fillRect(nextButtonX, nextButtonY, buttonWidth, buttonHeight, TFT_WHITE);
         display.drawRect(nextButtonX, nextButtonY, buttonWidth, buttonHeight, TFT_BLACK);
@@ -307,7 +305,7 @@ void PagedListView::draw(m5gfx::M5GFX& display) {
         display.print("下一页");
         
         // "返回"按钮
-        int16_t backButtonX = _x + _width - buttonWidth - padding;  // 最右边的按钮
+        int16_t backButtonX = _left + _width - buttonWidth - padding;  // 最右边的按钮
         int16_t backButtonY = controlBarY + (controlBarHeight - buttonHeight) / 2;
         display.fillRect(backButtonX, backButtonY, buttonWidth, buttonHeight, TFT_WHITE);
         display.drawRect(backButtonX, backButtonY, buttonWidth, buttonHeight, TFT_BLACK);
@@ -319,7 +317,7 @@ void PagedListView::draw(m5gfx::M5GFX& display) {
         // 绘制边框
         if (_borderWidth > 0) {
             for (int i = 0; i < _borderWidth; i++) {
-                display.drawRect(_x + i, _y + i, _width - 2 * i, _height - 2 * i, _borderColor);
+                display.drawRect(_left + i, _top + i, _width - 2 * i, _height - 2 * i, _borderColor);
             }
         }
     }
@@ -341,28 +339,28 @@ bool PagedListView::onTouch(int16_t x, int16_t y) {
     
     // 检查是否点击了底部控制按钮
         int16_t controlBarHeight = 30;
-        int16_t controlBarY = _y + _height - controlBarHeight;
+        int16_t controlBarY = _top + _height - controlBarHeight;
         
         if (y >= controlBarY && y < controlBarY + controlBarHeight) {
             int16_t buttonWidth = 60;
             int16_t padding = 5;
             
             // 检查是否点击了"上一页"按钮
-            int16_t prevButtonX = _x + padding;
+            int16_t prevButtonX = _left + padding;
             if (x >= prevButtonX && x < prevButtonX + buttonWidth) {
                 prevPage();
                 return true;
             }
             
             // 检查是否点击了"下一页"按钮
-            int16_t nextButtonX = _x + _width - buttonWidth * 2 - padding * 2;
+            int16_t nextButtonX = _left + _width - buttonWidth * 2 - padding * 2;
             if (x >= nextButtonX && x < nextButtonX + buttonWidth) {
                 nextPage();
                 return true;
             }
             
             // 检查是否点击了"返回"按钮
-            int16_t backButtonX = _x + _width - buttonWidth - padding;
+            int16_t backButtonX = _left + _width - buttonWidth - padding;
             if (x >= backButtonX && x < backButtonX + buttonWidth) {
                 // 这里需要外部传入的回调函数来处理返回操作
                 // 由于我们无法直接访问外部的返回逻辑，我们可以使用一个回调函数
@@ -395,34 +393,34 @@ bool PagedListView::onSwipe(TouchGestureDetector::SwipeDirection direction) {
 
 int16_t PagedListView::_getItemX(int index) const {
     if (_columnCount <= 0) {
-        return std::max(static_cast<int16_t>(_x), static_cast<int16_t>(_x + _paddingLeft));
+        return std::max(static_cast<int16_t>(_left), static_cast<int16_t>(_left + _paddingLeft));
     }
     
     int col = index % _columnCount;
     int16_t itemWidth = _getItemWidth();
     
     // 使用固定的水平间距计算项目X坐标
-    int16_t calculatedX = _x + _paddingLeft + col * (itemWidth + _horizontalSpacing);
+    int16_t calculatedX = _left + _paddingLeft + col * (itemWidth + _horizontalSpacing);
     
     // 确保计算的X坐标在合理的范围内
-    return std::max(static_cast<int16_t>(_x + _paddingLeft), 
-                   std::min(calculatedX, static_cast<int16_t>(_x + _width - itemWidth - _paddingRight)));
+    return std::max(static_cast<int16_t>(_left + _paddingLeft), 
+                   std::min(calculatedX, static_cast<int16_t>(_left + _width - itemWidth - _paddingRight)));
 }
 
 int16_t PagedListView::_getItemY(int index) const {
     if (_rowCount <= 0) {
-        return std::max(static_cast<int16_t>(_y), static_cast<int16_t>(_y + _paddingTop));
+        return std::max(static_cast<int16_t>(_top), static_cast<int16_t>(_top + _paddingTop));
     }
     
     int row = index / _columnCount;
     int16_t itemHeight = _getItemHeight();
     
     // 使用固定的垂直间距计算项目Y坐标
-    int16_t calculatedY = _y + _paddingTop + row * (itemHeight + _verticalSpacing);
+    int16_t calculatedY = _top + _paddingTop + row * (itemHeight + _verticalSpacing);
     
     // 确保计算的Y坐标在合理的范围内
-    return std::max(static_cast<int16_t>(_y + _paddingTop), 
-                   std::min(calculatedY, static_cast<int16_t>(_y + _height - itemHeight - 30 - _paddingBottom)));
+    return std::max(static_cast<int16_t>(_top + _paddingTop), 
+                   std::min(calculatedY, static_cast<int16_t>(_top + _height - itemHeight - 30 - _paddingBottom)));
 }
 
 int16_t PagedListView::_getItemWidth() const {
@@ -483,8 +481,7 @@ int16_t PagedListView::getVerticalSpacing() const {
     return _verticalSpacing;
 }
 
-int PagedListView::_getIndexFromPosition(int16_t x, int16_t y) const {
-    int pageSize = _rowCount * _columnCount;
+int PagedListView::_getIndexFromPosition(int16_t x, int16_t y) const {    
     
     for (int i = 0; i < (int)_currentPageItems.size(); i++) {
         int16_t itemX = _getItemX(i);
@@ -512,8 +509,8 @@ void PagedListView::measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec)
 
 void PagedListView::layout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
     // 使用父容器指定的布局参数
-    _x = left;
-    _y = top;
+    _left = left;
+    _top = top;
     _width = right - left;
     _height = bottom - top;
 }

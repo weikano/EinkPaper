@@ -30,16 +30,16 @@ public:
     virtual ~View();
 
     /**
-     * @brief 获取视图的X坐标
-     * @return X坐标
+     * @brief 获取视图的左侧位置
+     * @return 左侧位置
      */
-    int16_t getX() const { return _x; }
+    int16_t getLeft() const { return _left; }
 
     /**
-     * @brief 获取视图的Y坐标
-     * @return Y坐标
+     * @brief 获取视图的顶部位置
+     * @return 顶部位置
      */
-    int16_t getY() const { return _y; }
+    int16_t getTop() const { return _top; }
 
     /**
      * @brief 获取视图的宽度
@@ -55,10 +55,10 @@ public:
 
     /**
      * @brief 设置视图的位置
-     * @param x X坐标
-     * @param y Y坐标
+     * @param left 左侧位置
+     * @param top 顶部位置
      */
-    void setPosition(int16_t x, int16_t y);
+    void setPosition(int16_t left, int16_t top);
 
     /**
      * @brief 设置视图的尺寸
@@ -228,7 +228,7 @@ public:
     virtual std::string className() const { return "View"; }
 
 protected:
-    int16_t _x = 0, _y = 0;           ///< 视图的左上角坐标
+    int16_t _left = 0, _top = 0;      ///< 视图的左上角位置
     int16_t _width = 0, _height = 0;  ///< 视图的宽高
     Visibility _visibility = VISIBLE;   ///< 可见性状态
     uint32_t _borderColor = TFT_BLACK;    ///< 边框颜色

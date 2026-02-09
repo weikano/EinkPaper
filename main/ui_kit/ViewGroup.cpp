@@ -58,7 +58,7 @@ void ViewGroup::draw(m5gfx::M5GFX& display) {
     // 只有当自身或子视图需要重绘时才进行绘制
     if (isDirty()) {
         // 确保视图组已正确布局
-        layout(_x, _y, _x + _width, _y + _height);
+        layout(_left, _top, _left + _width, _top + _height);
 
         // 绘制自身（背景、边框等）
         View::draw(display);

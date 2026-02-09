@@ -10,7 +10,7 @@ void FrameLayout::layout(int16_t left, int16_t top, int16_t right, int16_t botto
     // 所有子视图都放在FrameLayout的左上角，占据整个空间
     for (auto child : _children) {
         if (child->getVisibility() != GONE) {
-            child->layout(_x, _y, _x + _width, _y + _height);
+            child->layout(_left, _top, _left + _width, _top + _height);
         }
     }
 }

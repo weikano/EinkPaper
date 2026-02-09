@@ -9,9 +9,9 @@ View::View(int16_t width, int16_t height)
 View::~View() {
 }
 
-void View::setPosition(int16_t x, int16_t y) {
-    _x = x;
-    _y = y;
+void View::setPosition(int16_t left, int16_t top) {
+    _left = left;
+    _top = top;
 }
 
 void View::setSize(int16_t width, int16_t height) {
@@ -42,7 +42,7 @@ void View::setPadding(uint8_t left, uint8_t top, uint8_t right, uint8_t bottom) 
 }
 
 bool View::contains(int16_t x, int16_t y) const {
-    return x >= _x && x < (_x + _width) && y >= _y && y < (_y + _height);
+    return x >= _left && x < (_left + _width) && y >= _top && y < (_top + _height);
 }
 
 void View::draw(m5gfx::M5GFX& display) {
@@ -63,8 +63,8 @@ void View::onDraw(m5gfx::M5GFX& display) {
     ESP_LOGV("View", "className: %s onDraw called", className().c_str());
     // 绘制背景（考虑边框宽度）
     int borderWidthOffset = _borderWidth > 0 ? _borderWidth : 0;
-    int drawX = _x + borderWidthOffset;
-    int drawY = _y + borderWidthOffset;
+    int drawX = _left + borderWidthOffset;
+    int drawY = _top + borderWidthOffset;
     int drawWidth = _width - 2 * borderWidthOffset;
     int drawHeight = _height - 2 * borderWidthOffset;
     
@@ -74,7 +74,7 @@ void View::onDraw(m5gfx::M5GFX& display) {
     // 绘制边框
     if (_borderWidth > 0) {
         for (int i = 0; i < _borderWidth; i++) {
-            display.drawRect(_x + i, _y + i, _width - 2 * i, _height - 2 * i, _borderColor);
+            display.drawRect(_left + i, _top + i, _width - 2 * i, _height - 2 * i, _borderColor);
         }
     }
 }
@@ -91,8 +91,8 @@ void View::measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
 }
 
 void View::layout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
-    _x = left;
-    _y = top;
+    _left = left;
+    _top = top;
     _width = right - left;
     _height = bottom - top;
     

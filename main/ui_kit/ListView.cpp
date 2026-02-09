@@ -74,12 +74,12 @@ void ListView::draw(m5gfx::M5GFX& display) {
         // 绘制可见的项目
         for (int i = startIndex; i < endIndex; i++) {
             if (i >= 0 && i < (int)_items.size()) {
-                int16_t yPos = _y + (i * itemHeight) - _scrollOffset;
+                int16_t yPos = _top + (i * itemHeight) - _scrollOffset;
                 
                 // 只绘制在可见区域内的项目
-                if (yPos + itemHeight > _y && yPos < _y + _height) {
+                if (yPos + itemHeight > _top && yPos < _top + _height) {
                     // 绘制项目背景（考虑padding）
-                    int16_t itemBgX = _x + _paddingLeft;
+                    int16_t itemBgX = _left + _paddingLeft;
                     int16_t itemBgWidth = _width - _paddingLeft - _paddingRight;
                     display.fillRect(itemBgX, yPos, itemBgWidth, itemHeight, TFT_WHITE);
                     
@@ -94,8 +94,7 @@ void ListView::draw(m5gfx::M5GFX& display) {
                      
                      if (text_width > max_width) {
                          // 需要截断文本并添加省略号
-                         std::string ellipsis = "...";
-                         int16_t ellipsis_width = display.textWidth(ellipsis.c_str());
+                         std::string ellipsis = "...";                         
                          
                          // 如果原始文本适合空间，直接使用
                           if (display.textWidth(text.c_str()) <= max_width) {
@@ -124,14 +123,14 @@ void ListView::draw(m5gfx::M5GFX& display) {
                      }
                     
                     // 使用padding调整文本位置
-                    int16_t textX = _x + _paddingLeft;
+                    int16_t textX = _left + _paddingLeft;
                     int16_t textY = yPos + (itemHeight - display.fontHeight()) / 2;
                     display.setCursor(textX, textY);
                     display.print(text.c_str());
                     
                     // 绘制分割线
-                    if (yPos + itemHeight < _y + _height) {
-                        display.drawFastHLine(_x + _paddingLeft, yPos + itemHeight, 
+                    if (yPos + itemHeight < _top + _height) {
+                        display.drawFastHLine(_left + _paddingLeft, yPos + itemHeight, 
                                              _width - _paddingLeft - _paddingRight, TFT_BLACK);
                     }
                 }
@@ -141,7 +140,7 @@ void ListView::draw(m5gfx::M5GFX& display) {
         // 绘制边框
         if (_borderWidth > 0) {
             for (int i = 0; i < _borderWidth; i++) {
-                display.drawRect(_x + i, _y + i, _width - 2 * i, _height - 2 * i, _borderColor);
+                display.drawRect(_left + i, _top + i, _width - 2 * i, _height - 2 * i, _borderColor);
             }
         }
     }
@@ -156,7 +155,7 @@ bool ListView::onTouch(int16_t x, int16_t y) {
     int16_t itemHeight = _height / _rowCount;
     
     // 计算点击的项目索引
-    int itemIndex = (y - _y + _scrollOffset) / itemHeight;
+    int itemIndex = (y - _top + _scrollOffset) / itemHeight;
     
     if (itemIndex >= 0 && itemIndex < (int)_items.size()) {
         // 触发项目点击事件
@@ -181,8 +180,8 @@ void ListView::measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
 
 void ListView::layout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
     // 使用父容器指定的布局参数
-    _x = left;
-    _y = top;
+    _left = left;
+    _top = top;
     _width = right - left;
     _height = bottom - top;
 }
