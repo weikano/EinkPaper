@@ -1,9 +1,9 @@
 #pragma once
-
+#include <cstdint>
 /**
  * 设备语言
  */
-enum class LanguageEnum {    
+enum LanguageEnum {    
     /**
      * 中文
      */
@@ -19,10 +19,36 @@ enum class LanguageEnum {
 };
 
 /**
+ * 刷新模式
+ */
+enum RefreshMode {
+    /**
+     * 高清
+     */
+    Quality = 0, 
+    /**
+     * 快速
+     */
+    Fast, 
+};
+
+/**
+ * 字体大小
+ */
+enum FontSize {
+    Small = 0, 
+    Meium = 1, 
+    Large = 2, 
+};
+
+/**
  * 设备配置结构体
  */
 struct DeviceConfig {
+    uint8_t version = 0; // 配置版本号
     LanguageEnum language;  // 语言设置    
-    int refreshInterval = 10;    // 自动刷新间隔（秒）
+    uint8_t refreshInterval = 10;    // 自动刷新间隔（秒）
     char* fontPath;           // 字体文件路径  
+    RefreshMode refreshMode = RefreshMode::Quality; // 刷新模式
+    FontSize fontSize = FontSize::Meium; // 字体大小
 };

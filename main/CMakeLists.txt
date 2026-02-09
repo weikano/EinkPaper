@@ -21,5 +21,8 @@ idf_component_register(SRCS "main.cpp"
                     "ui_kit/Dialog.cpp"
                     "config/DeviceConfigManager.cpp"                    
                     "gestures/TouchGestureDetector.cpp"                    
-                    INCLUDE_DIRS "." "pages" "pages/file_browser" "pages/settings" "pages/launcher" "pages/message" "refresh_counter" "hal/sdcard" "ui_kit" "page_manager" "config" "gestures"
-                    REQUIRES fatfs sdmmc spi_flash)
+                    "hal/wifi/WifiManager.cpp"
+                    "http/server/HttpServer.cpp"
+                    INCLUDE_DIRS "." "pages" "pages/file_browser" "pages/settings" "pages/launcher" "pages/message" "refresh_counter" "hal/sdcard" "ui_kit" "page_manager" "config" "gestures" "hal/wifi" "http/server"
+                    REQUIRES fatfs sdmmc spi_flash esp_wifi esp_http_server
+                    )
