@@ -36,13 +36,13 @@ void TextView::setTextAlign(uint8_t align) {
     }
 }
 
-void TextView::draw(m5gfx::M5GFX& display) {
+void TextView::onDraw(m5gfx::M5GFX& display) {    
     if (_visibility == GONE) {
         return;
     }
 
     // 绘制背景
-    View::draw(display);
+    View::onDraw(display);
 
     if (_visibility == VISIBLE && !_text.empty()) {
         display.setTextColor(_textColor);
@@ -51,8 +51,8 @@ void TextView::draw(m5gfx::M5GFX& display) {
         // 考虑padding的可用绘制区域
         int16_t contentX = _left + _paddingLeft;
         int16_t contentY = _top + _paddingTop;
-        int16_t contentWidth = _width - _paddingLeft - _paddingRight;
-        int16_t contentHeight = _height - _paddingTop - _paddingBottom;
+        int16_t contentWidth = _measuredWidth - _paddingLeft - _paddingRight;
+        int16_t contentHeight = _measuredHeight - _paddingTop - _paddingBottom;
         
         int16_t textWidth = display.textWidth(_text.c_str());
         int16_t drawX = contentX;
@@ -77,25 +77,66 @@ void TextView::draw(m5gfx::M5GFX& display) {
     }
 }
 
-void TextView::measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
-    // 如果宽度或高度未设置，可以根据文本内容计算
-    if (_width <= 0) {
-        if (widthMeasureSpec > 0) {
-            _width = widthMeasureSpec;
+void TextView::onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
+    int16_t measuredWidth = 0;
+    int16_t measuredHeight = 0;
+    
+    // 处理宽度测量
+    if (_width == MATCH_PARENT) {
+        // 如果是MATCH_PARENT，则使用父容器的宽度限制
+        measuredWidth = MeasureSpec::getSize(widthMeasureSpec);
+    } else if (_width == WRAP_CONTENT) {
+        // 如果是WRAP_CONTENT，则根据文本内容决定，但不超过父容器限制
+        m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
+        int16_t textWidth = tempDisplay.textWidth(_text.c_str()) + getPaddingLeft() + getPaddingRight();
+        int16_t specSize = MeasureSpec::getSize(widthMeasureSpec);
+        MeasureSpecMode specMode = MeasureSpec::getMode(widthMeasureSpec);
+        
+        if (specMode == MeasureSpecMode::EXACTLY) {
+            measuredWidth = specSize;
+        } else if (specMode == MeasureSpecMode::AT_MOST) {
+            measuredWidth = std::min(textWidth, specSize);
         } else {
-            // 根据文本内容估算宽度
-            m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
-            _width = tempDisplay.textWidth(_text.c_str()) + 10; // 添加一些padding
+            measuredWidth = textWidth;
         }
+    } else {
+        // 指定具体数值
+        measuredWidth = _width;
     }
     
-    if (_height <= 0) {
-        if (heightMeasureSpec > 0) {
-            _height = heightMeasureSpec;
+    // 处理高度测量
+    if (_height == MATCH_PARENT) {
+        // 如果是MATCH_PARENT，则使用父容器的高度限制
+        measuredHeight = MeasureSpec::getSize(heightMeasureSpec);
+    } else if (_height == WRAP_CONTENT) {
+        // 如果是WRAP_CONTENT，则根据文本内容决定，但不超过父容器限制
+        m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
+        int16_t textHeight = tempDisplay.fontHeight() + getPaddingTop() + getPaddingBottom();
+        int16_t specSize = MeasureSpec::getSize(heightMeasureSpec);
+        MeasureSpecMode specMode = MeasureSpec::getMode(heightMeasureSpec);
+        
+        if (specMode == MeasureSpecMode::EXACTLY) {
+            measuredHeight = specSize;
+        } else if (specMode == MeasureSpecMode::AT_MOST) {
+            measuredHeight = std::min(textHeight, specSize);
         } else {
-            // 根据字体大小估算高度
-            m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
-            _height = tempDisplay.fontHeight() + 10; // 添加一些padding
+            measuredHeight = textHeight;
         }
+    } else {
+        // 指定具体数值
+        measuredHeight = _height;
     }
+    
+    _measuredWidth = measuredWidth;
+    _measuredHeight = measuredHeight;
+}
+
+int16_t TextView::getDesiredWidth() const {
+    m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
+    return tempDisplay.textWidth(_text.c_str()) + getPaddingLeft() + getPaddingRight();
+}
+
+int16_t TextView::getDesiredHeight() const {
+    m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
+    return tempDisplay.fontHeight() + getPaddingTop() + getPaddingBottom();
 }

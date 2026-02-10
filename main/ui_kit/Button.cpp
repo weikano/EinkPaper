@@ -9,13 +9,13 @@ Button::Button(int16_t width, int16_t height)
 
 
 
-void Button::draw(m5gfx::M5GFX& display) {
+void Button::onDraw(m5gfx::M5GFX& display) {
     if (_visibility == GONE) {
         return;
     }
 
     // 直接调用TextView的绘制方法
-    TextView::draw(display);
+    TextView::onDraw(display);
     
     // 绘制边框
     if (_borderWidth > 0) {

@@ -20,7 +20,7 @@ PagedListView::PagedListView(int16_t width, int16_t height)
       _backCallback(nullptr) {
     _isDirty = true;
     refreshData();
-    ESP_LOGD("PagedListView", "created with width=%d, height=%d", width, height);
+    ESP_LOGI("PagedListView", "created with width=%d, height=%d", width, height);
 }
 
 void PagedListView::setRowCount(int16_t rowCount) {
@@ -179,13 +179,13 @@ void PagedListView::_loadCurrentPageData() {
     _currentPageItems = _dataSourceLoader(_currentPage, pageSize);
 }
 
-void PagedListView::draw(m5gfx::M5GFX& display) {
+void PagedListView::onDraw(m5gfx::M5GFX& display) {
     if (_visibility == GONE) {
         return;
     }
 
     // 绘制背景
-    View::draw(display);
+    View::onDraw(display);
 
     if (_visibility == VISIBLE && _parent != nullptr) {
         int itemCount = _currentPageItems.size();        
@@ -497,20 +497,6 @@ int PagedListView::_getIndexFromPosition(int16_t x, int16_t y) const {
     return -1;
 }
 
-void PagedListView::measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
-    // 如果指定了具体尺寸，则使用指定尺寸；否则使用父容器提供的约束
-    if (_width <= 0 && widthMeasureSpec > 0) {
-        _width = widthMeasureSpec;
-    }
-    if (_height <= 0 && heightMeasureSpec > 0) {
-        _height = heightMeasureSpec;
-    }
-}
-
-void PagedListView::layout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
-    // 使用父容器指定的布局参数
-    _left = left;
-    _top = top;
-    _width = right - left;
-    _height = bottom - top;
+void PagedListView::onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
+    ViewGroup::onMeasure(widthMeasureSpec, heightMeasureSpec);
 }

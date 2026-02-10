@@ -48,13 +48,7 @@ public:
      * @param index 索引
      * @return 子视图指针
      */
-    View* getChildAt(size_t index) const;
-
-    /**
-     * @brief 重写绘制方法，同时绘制子视图
-     * @param display 显示对象
-     */
-    virtual void draw(m5gfx::M5GFX& display) override;
+    View* getChildAt(size_t index) const;    
 
     /**
      * @brief 重写触摸处理方法，传递给子视图
@@ -70,13 +64,6 @@ public:
      * @return 如果处理了事件返回true，否则返回false
      */
     virtual bool onSwipe(TouchGestureDetector::SwipeDirection direction) override;
-
-    /**
-     * @brief 重写测量方法，测量所有子视图
-     * @param widthMeasureSpec 父容器提供的宽度约束
-     * @param heightMeasureSpec 父容器提供的高度约束
-     */
-    virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
 
     /**
      * @brief 检查视图组是否需要重绘
@@ -96,7 +83,11 @@ public:
     
 protected:
     virtual void onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom) override;
+    virtual void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
+    virtual void onDraw(m5gfx::M5GFX& display) override;
     std::vector<View*> _children;  ///< 子视图列表
     std::map<View*, Visibility> _lastChildVisibilities;  ///< 记录上次子视图的可见性状态
+private :
+    void invalidateChild(View* child);
 
 };

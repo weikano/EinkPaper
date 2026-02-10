@@ -83,7 +83,7 @@ void MessagePage::setMessage(const std::string &message) {
     _textView->markDirty(); // 标记为需要重绘
   }
 
-  ESP_LOGD(TAG, "Message updated to: %s", message.c_str());
+  ESP_LOGI(TAG, "Message updated to: %s", message.c_str());
 }
 
 std::string MessagePage::getMessage() const { return _message; }

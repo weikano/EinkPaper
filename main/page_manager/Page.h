@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../ui_kit/View.h"
+#include "../ui_kit/FrameLayout.h"
 #include <memory>
 
 #include "PageType.h"
@@ -47,7 +48,11 @@ public:
      * @brief 设置页面根视图
      * @param rootView 页面根视图指针
      */
-    void setRootView(View* rootView) { _rootView = rootView; }
+    void setRootView(View* rootView) { 
+        if(_rootView) {
+            _rootView->addChild(rootView); 
+        }        
+    }
 
     /**
      * @brief 设置页面参数
@@ -95,6 +100,6 @@ private:
     virtual void onSwipeDispatched(TouchGestureDetector::SwipeDirection direction);
     PageType _pageType;                    ///< 页面类型
     std::string _pageName;                 ///< 页面名称
-    View* _rootView = nullptr;             ///< 页面根视图
+    FrameLayout* _rootView;             ///< 页面根视图
     std::shared_ptr<void> _params = nullptr; ///< 页面参数
 };

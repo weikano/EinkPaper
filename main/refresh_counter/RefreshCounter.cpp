@@ -28,7 +28,7 @@ m5gfx::epd_mode_t RefreshCounter::refresh() {
     _refreshCount++;
     
     // 打印当前刷新计数和全刷阈值
-    ESP_LOGD(TAG, "Refresh count: %d/%d", _refreshCount, _fullRefreshThreshold);
+    ESP_LOGI(TAG, "Refresh count: %d/%d", _refreshCount, _fullRefreshThreshold);
     
     // 检查是否达到全刷阈值
     if (_refreshCount >= _fullRefreshThreshold) {
@@ -38,12 +38,12 @@ m5gfx::epd_mode_t RefreshCounter::refresh() {
         return m5gfx::epd_mode_t::epd_quality;  // 全刷模式
     } else {
         // 执行快刷
-        ESP_LOGD(TAG, "Fast refresh at count: %d", _refreshCount);
+        ESP_LOGI(TAG, "Fast refresh at count: %d", _refreshCount);
         return m5gfx::epd_mode_t::epd_fast;  // 快刷模式
     }
 }
 
 void RefreshCounter::reset() {
     _refreshCount = 0;
-    ESP_LOGD(TAG, "Refresh counter reset");
+    ESP_LOGI(TAG, "Refresh counter reset");
 }

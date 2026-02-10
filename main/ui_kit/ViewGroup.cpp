@@ -51,22 +51,24 @@ View* ViewGroup::getChildAt(size_t index) const {
     return nullptr;
 }
 
-void ViewGroup::draw(m5gfx::M5GFX& display) {
+void ViewGroup::onDraw(m5gfx::M5GFX& display) {
     if (_visibility == GONE) {
         return;
     }
 
     // 只有当自身或子视图需要重绘时才进行绘制
-    if (isDirty()) {
+    if (_isDirty) {
+        measure(_width, _height);
         // 确保视图组已正确布局
         layout(_left, _top, _left + _width, _top + _height);
 
         // 绘制自身（背景、边框等）
-        View::draw(display);
+        View::onDraw(display);
 
         // 绘制所有可见的子视图
         for (auto child : _children) {
             if (child->getVisibility() != GONE) {
+                invalidateChild(child);
                 child->draw(display);
             }
         }
@@ -106,13 +108,15 @@ bool ViewGroup::onSwipe(TouchGestureDetector::SwipeDirection direction) {
     return View::onSwipe(direction);
 }
 
-void ViewGroup::measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
+void ViewGroup::onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
     // 首先测量自己
-    View::measure(widthMeasureSpec, heightMeasureSpec);
+    View::onMeasure(widthMeasureSpec, heightMeasureSpec);
 
     // 然后测量所有子视图
     for (auto child : _children) {
-        child->measure(_width, _height);
+        if (child->getVisibility() != GONE) {
+            child->measure(widthMeasureSpec, heightMeasureSpec);
+        }
     }
 }
 
@@ -153,5 +157,11 @@ void ViewGroup::notifyParentOfChange() {
 
 void ViewGroup::onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
     View::onLayout(left, top, right, bottom);
-    ESP_LOGD("ViewGroup", "className :%s, onLayout: left=%d, top=%d, right=%d, bottom=%d", className().c_str(), left, top, right, bottom);
+    ESP_LOGI("ViewGroup", "className :%s, onLayout: left=%d, top=%d, right=%d, bottom=%d", className().c_str(), left, top, right, bottom);
+}
+
+void ViewGroup::invalidateChild(View* child) {
+    if(child != nullptr) {
+        child->forceRedraw();
+    }
 }

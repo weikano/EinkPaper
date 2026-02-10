@@ -27,7 +27,7 @@ PageManager::~PageManager() {
 void PageManager::registerPage(PageType pageType, 
                                std::function<std::unique_ptr<Page>()> factory) {
     _pageFactories[pageType] = factory;
-    ESP_LOGD(TAG, "Registered page type: %d", static_cast<int>(pageType));
+    ESP_LOGI(TAG, "Registered page type: %d", static_cast<int>(pageType));
 }
 
 void PageManager::startActivity(PageType pageType, 
@@ -64,7 +64,7 @@ void PageManager::startActivity(PageType pageType,
     // 标记页面转换发生，需要重绘
     _pageTransitionOccurred = true;
     
-    ESP_LOGD(TAG, "Started activity: %d", static_cast<int>(pageType));
+    ESP_LOGI(TAG, "Started activity: %d", static_cast<int>(pageType));
 }
 
 void PageManager::goBack() {
@@ -80,7 +80,7 @@ void PageManager::goBack() {
     currentPage->onStop();
     currentPage->onDestroy();
 
-    ESP_LOGD(TAG, "Destroyed page: %d", static_cast<int>(currentPage->getType()));
+    ESP_LOGI(TAG, "Destroyed page: %d", static_cast<int>(currentPage->getType()));
 
     // 如果还有页面，恢复上一个页面
     if (!_pageStack.empty()) {
@@ -88,13 +88,13 @@ void PageManager::goBack() {
         resumedPage->onRestart();
         resumedPage->onStart();
         resumedPage->onResume();
-        ESP_LOGD(TAG, "Resumed page: %d", static_cast<int>(resumedPage->getType()));
+        ESP_LOGI(TAG, "Resumed page: %d", static_cast<int>(resumedPage->getType()));
     }
 
     // 标记页面转换发生，需要重绘
     _pageTransitionOccurred = true;
     
-    ESP_LOGD(TAG, "Finished goBack operation");
+    ESP_LOGI(TAG, "Finished goBack operation");
 }
 
 void PageManager::startActivityClearTop(PageType pageType, 
@@ -106,7 +106,7 @@ void PageManager::startActivityClearTop(PageType pageType,
         page->onPause();
         page->onStop();
         page->onDestroy();
-        ESP_LOGD(TAG, "Destroyed page: %d", static_cast<int>(page->getType()));
+        ESP_LOGI(TAG, "Destroyed page: %d", static_cast<int>(page->getType()));
     }
 
     // 启动新页面
@@ -224,7 +224,7 @@ void PageManager::finishActivity() {
         }
         
         _pageTransitionOccurred = true;
-        ESP_LOGD("PageManager", "Finished current activity, stack size: %zu", _pageStack.size());
+        ESP_LOGI("PageManager", "Finished current activity, stack size: %zu", _pageStack.size());
     } else {
         ESP_LOGW("PageManager", "No activity to finish");
     }

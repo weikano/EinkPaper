@@ -9,6 +9,63 @@
 class ViewGroup;
 
 /**
+ * @brief 尺寸规格类型枚举
+ * 
+ * 用于定义布局约束，类似于Android的MeasureSpec
+ */
+enum class MeasureSpecMode {
+    UNSPECIFIED = 0,  ///< 无限制模式
+    EXACTLY = 1,      ///< 精确模式，必须使用指定大小
+    AT_MOST = 2       ///< 最大模式，不超过指定大小
+};
+
+/**
+ * @brief 尺寸规格工具类
+ * 
+ * 用于封装大小和模式的组合值
+ */
+class MeasureSpec {
+public:
+    static constexpr int32_t MODE_SHIFT = 30;
+    static constexpr int32_t MODE_MASK = 0x3 << MODE_SHIFT;
+    static constexpr int32_t SIZE_MASK = 0x3FFFFFFF;
+
+    /**
+     * @brief 创建MeasureSpec
+     * @param size 大小
+     * @param mode 模式
+     * @return 组合后的MeasureSpec
+     */
+    static int32_t makeMeasureSpec(int32_t size, MeasureSpecMode mode) {
+        return (static_cast<int32_t>(mode) << MODE_SHIFT) | size;
+    }
+
+    /**
+     * @brief 从MeasureSpec中提取大小
+     * @param measureSpec MeasureSpec值
+     * @return 大小值
+     */
+    static int32_t getSize(int32_t measureSpec) {
+        return measureSpec & SIZE_MASK;
+    }
+
+    /**
+     * @brief 从MeasureSpec中提取模式
+     * @param measureSpec MeasureSpec值
+     * @return 模式
+     */
+    static MeasureSpecMode getMode(int32_t measureSpec) {
+        return static_cast<MeasureSpecMode>((measureSpec & MODE_MASK) >> MODE_SHIFT);
+    }
+};
+
+/**
+ * @brief 特殊尺寸值定义
+ */
+constexpr int16_t MATCH_PARENT = -1;   ///< 匹配父容器
+constexpr int16_t WRAP_CONTENT = -2;   ///< 包裹内容
+
+/**
  * @brief View基类 - 所有UI控件的基础
  * 
  * 提供基本的绘制、布局和事件处理功能
@@ -46,13 +103,13 @@ public:
      * @brief 获取视图的宽度
      * @return 宽度
      */
-    int16_t getWidth() const { return _width; }
+    int16_t getWidth() const { return _measuredWidth; }
 
     /**
      * @brief 获取视图的高度
      * @return 高度
      */
-    int16_t getHeight() const { return _height; }
+    int16_t getHeight() const { return _measuredHeight; }
 
     /**
      * @brief 设置视图的位置
@@ -137,14 +194,14 @@ public:
      * @brief 绘制视图
      * @param display 显示对象
      */
-    virtual void draw(m5gfx::M5GFX& display);
+    void draw(m5gfx::M5GFX& display);
 
     /**
      * @brief 测量视图所需的空间
      * @param widthMeasureSpec 父容器提供的宽度约束
      * @param heightMeasureSpec 父容器提供的高度约束
      */
-    virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec);
+    void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec);
 
     /**
      * @brief 布局视图
@@ -153,7 +210,7 @@ public:
      * @param right 右边界
      * @param bottom 下边界
      */
-    virtual void layout(int16_t left, int16_t top, int16_t right, int16_t bottom);    
+    void layout(int16_t left, int16_t top, int16_t right, int16_t bottom);    
 
     /**
      * @brief 处理触摸事件
@@ -221,6 +278,24 @@ protected:
      */
     virtual void onDraw(m5gfx::M5GFX& display);
     /**
+     * @brief 获取内容期望的宽度
+     * @return 期望的宽度
+     */
+    virtual int16_t getDesiredWidth() const;
+    
+    /**
+     * @brief 获取内容期望的高度
+     * @return 期望的高度
+     */
+    virtual int16_t getDesiredHeight() const;
+
+    /**
+     * @brief 实际执行测量操作的内部方法
+     * @param widthMeasureSpec 父容器提供的宽度约束
+     * @param heightMeasureSpec 父容器提供的高度约束
+     */
+    virtual void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec);
+    /**
      * @brief 实际执行布局操作的内部方法
      * @param left 左边界
      * @param top 上边界
@@ -230,7 +305,8 @@ protected:
     virtual void onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom);
 
     int16_t _left = 0, _top = 0;      ///< 视图的左上角位置
-    int16_t _width = 0, _height = 0;  ///< 视图的宽高
+    int16_t _width = 0, _height = 0;  ///< 视图的请求宽高
+    int16_t _measuredWidth = 0, _measuredHeight = 0;  ///< 测量后的实际宽高
     Visibility _visibility = VISIBLE;   ///< 可见性状态
     uint32_t _borderColor = TFT_BLACK;    ///< 边框颜色
     uint8_t _borderWidth = 1;     ///< 边框宽度

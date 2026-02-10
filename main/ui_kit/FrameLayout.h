@@ -18,21 +18,8 @@ public:
      */
     FrameLayout(int16_t width, int16_t height);
 
-    /**
-     * @brief 重写布局方法
-     * @param left 左边界
-     * @param top 上边界
-     * @param right 右边界
-     * @param bottom 下边界
-     */
-    virtual void layout(int16_t left, int16_t top, int16_t right, int16_t bottom) override;
-
-    /**
-     * @brief 重写测量方法
-     * @param widthMeasureSpec 父容器提供的宽度约束
-     * @param heightMeasureSpec 父容器提供的高度约束
-     */
-    virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
-
     std::string className() const override { return "FrameLayout"; }
+protected:
+    void onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom) override;
+    void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
 };

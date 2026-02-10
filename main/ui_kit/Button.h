@@ -16,14 +16,6 @@ public:
      */
     Button(int16_t width, int16_t height);
 
-
-
-    /**
-     * @brief 重写绘制方法
-     * @param display 显示对象
-     */
-    virtual void draw(m5gfx::M5GFX& display) override;
-
     /**
      * @brief 重写触摸处理方法
      * @param x X坐标
@@ -37,5 +29,6 @@ public:
      * @return 类名字符串
      */
     virtual std::string className() const override { return "Button"; }
-
+protected:
+    void onDraw(m5gfx::M5GFX& display) override;
 };

@@ -3,11 +3,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
-#include "M5Unified.h"
 #include "M5GFX.h"
 #include "lgfx/Fonts/efont/lgfx_efont_cn.h"
 #include "page_manager/PageManager.h"
-#include "pages/file_browser/FileBrowserPage.h"
 #include "pages/file_browser/PagedFileBrowserPage.h"
 #include "pages/settings/SettingsPage.h"
 #include "pages/launcher/LauncherPage.h"
@@ -15,9 +13,7 @@
 #include "refresh_counter/RefreshCounter.h"
 #include "pages/httpserver/HttpServerPage.h"
 #include "hal/sdcard/sdcard.h"
-#include "ui_kit/UIKIT.h"
 #include "gestures/TouchGestureDetector.h"
-#include "pages/file_browser/paged_file_browser.h"
 
 #include "config/DeviceConfigManager.h"
 
@@ -99,7 +95,7 @@ extern "C" void app_main(void)
             TouchGestureDetector::SwipeDirection direction = gestureDetector.updateTouch(touch);
             
             if (direction != TouchGestureDetector::SwipeDirection::NONE) {
-                ESP_LOGD(TAG, "Detected swipe gesture: %d", direction);
+                ESP_LOGI(TAG, "Detected swipe gesture: %d", direction);
                 // 检测到滑动手势
                 // 将滑动事件传递给当前页面
                 pageMgr->onSwipe(direction);
@@ -113,7 +109,7 @@ extern "C" void app_main(void)
                         
             
             if (shouldUpdateDisplay) {
-                ESP_LOGD(TAG, "UI需要重绘");
+                ESP_LOGI(TAG, "UI需要重绘");
                 // 绘制当前页面
                 display.startWrite();
                 pageMgr->draw(display);

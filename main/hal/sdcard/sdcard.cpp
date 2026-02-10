@@ -55,7 +55,7 @@ esp_err_t sdcard_init(void)
         _spi_bus_initialized = true;
         ESP_LOGI(TAG, "SPI bus initialized.");
     } else {
-        ESP_LOGD(TAG, "SPI bus already initialized.");
+        ESP_LOGI(TAG, "SPI bus already initialized.");
     }
 
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();

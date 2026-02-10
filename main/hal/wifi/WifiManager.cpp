@@ -85,7 +85,7 @@ std::string WifiManager::generate_ap_qr_code()
     wifi_config_t wifi_config;
     esp_err_t ret = esp_wifi_get_config(WIFI_IF_AP, &wifi_config);
     if (ret != ESP_OK) {
-        ESP_LOGD(TAG, "Failed to get WiFi configuration for QR code generation: %s", esp_err_to_name(ret));
+        ESP_LOGI(TAG, "Failed to get WiFi configuration for QR code generation: %s", esp_err_to_name(ret));
         return "";
     }
 
@@ -101,7 +101,7 @@ std::string WifiManager::generate_ap_qr_code()
     // 构建QR码字符串
     std::string qrcode = "WIFI:S:" + ssid + ";T:WPA2;P:" + password + ";H:false;;";
     
-    ESP_LOGD(TAG, "Generated QR code string for network: %s", ssid.c_str());
+    ESP_LOGI(TAG, "Generated QR code string for network: %s", ssid.c_str());
     
     return qrcode;
 }

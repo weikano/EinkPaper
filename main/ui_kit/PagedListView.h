@@ -171,12 +171,6 @@ public:
     bool prevPage();
 
     /**
-     * @brief 重写绘制方法
-     * @param display 显示对象
-     */
-    virtual void draw(m5gfx::M5GFX& display) override;
-
-    /**
      * @brief 重写触摸处理方法
      * @param x X坐标
      * @param y Y坐标
@@ -189,30 +183,16 @@ public:
      * @param direction 滑动方向
      * @return 如果处理了事件返回true，否则返回false
      */
-    virtual bool onSwipe(TouchGestureDetector::SwipeDirection direction) override;
-
-    /**
-     * @brief 重写测量方法
-     * @param widthMeasureSpec 父容器提供的宽度约束
-     * @param heightMeasureSpec 父容器提供的高度约束
-     */
-    virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
-
-    /**
-     * @brief 重写布局方法
-     * @param left 左边界
-     * @param top 上边界
-     * @param right 右边界
-     * @param bottom 下边界
-     */
-    virtual void layout(int16_t left, int16_t top, int16_t right, int16_t bottom) override;
+    virtual bool onSwipe(TouchGestureDetector::SwipeDirection direction) override;        
 
     /**
      * @brief 获取类名
      * @return 类名字符串
      */
     virtual std::string className() const override { return "PagedListView"; }
-
+protected:
+    void onDraw(m5gfx::M5GFX& display) override;
+    void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
 private:
     int16_t _rowCount;                           ///< 每页显示的行数
     int16_t _columnCount;                        ///< 每页显示的列数

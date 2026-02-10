@@ -21,7 +21,7 @@ TouchGestureDetector::SwipeDirection TouchGestureDetector::updateTouch(const m5:
         _endX = touch.x;
         _endY = touch.y;
         
-        ESP_LOGD("TouchGesture", "Touch pressed at (%d, %d)", _startX, _startY);
+        ESP_LOGI("TouchGesture", "Touch pressed at (%d, %d)", _startX, _startY);
     } 
     else if (touch.wasReleased()) {
         // 触摸释放
@@ -31,7 +31,7 @@ TouchGestureDetector::SwipeDirection TouchGestureDetector::updateTouch(const m5:
             
             uint32_t duration = (esp_timer_get_time() / 1000) - _touchStartTime;
             
-            ESP_LOGD("TouchGesture", "Touch released at (%d, %d), duration: %lu ms", 
+            ESP_LOGI("TouchGesture", "Touch released at (%d, %d), duration: %lu ms", 
                      _endX, _endY, duration);
             
             if (isValidSwipe() && duration <= MAX_SWIPE_TIME) {
@@ -39,25 +39,25 @@ TouchGestureDetector::SwipeDirection TouchGestureDetector::updateTouch(const m5:
                 int16_t deltaX = _endX - _startX;
                 int16_t deltaY = _endY - _startY;
                 
-                ESP_LOGD("TouchGesture", "Delta: dx=%d, dy=%d", deltaX, deltaY);
+                ESP_LOGI("TouchGesture", "Delta: dx=%d, dy=%d", deltaX, deltaY);
                 
                 // 确定主导方向
                 if (abs(deltaX) > abs(deltaY)) {
                     // 水平滑动
                     if (deltaX > 0) {
-                        ESP_LOGD("TouchGesture", "Swipe detected: RIGHT");
+                        ESP_LOGI("TouchGesture", "Swipe detected: RIGHT");
                         return SwipeDirection::RIGHT;
                     } else {
-                        ESP_LOGD("TouchGesture", "Swipe detected: LEFT");
+                        ESP_LOGI("TouchGesture", "Swipe detected: LEFT");
                         return SwipeDirection::LEFT;
                     }
                 } else {
                     // 垂直滑动
                     if (deltaY > 0) {
-                        ESP_LOGD("TouchGesture", "Swipe detected: DOWN");
+                        ESP_LOGI("TouchGesture", "Swipe detected: DOWN");
                         return SwipeDirection::DOWN;
                     } else {
-                        ESP_LOGD("TouchGesture", "Swipe detected: UP");
+                        ESP_LOGI("TouchGesture", "Swipe detected: UP");
                         return SwipeDirection::UP;
                     }
                 }
@@ -82,7 +82,7 @@ bool TouchGestureDetector::isValidSwipe() const {
     // 计算总滑动距离
     float distance = calculateDistance(_startX, _startY, _endX, _endY);
     
-    ESP_LOGD("TouchGesture", "Swipe distance: %.2f, min required: %d", 
+    ESP_LOGI("TouchGesture", "Swipe distance: %.2f, min required: %d", 
              distance, MIN_SWIPE_DISTANCE);
     
     return distance >= MIN_SWIPE_DISTANCE;

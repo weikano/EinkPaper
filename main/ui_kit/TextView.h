@@ -48,24 +48,15 @@ public:
     void setTextAlign(uint8_t align);
 
     /**
-     * @brief 重写绘制方法
-     * @param display 显示对象
-     */
-    virtual void draw(m5gfx::M5GFX& display) override;
-
-    /**
-     * @brief 重写测量方法
-     * @param widthMeasureSpec 父容器提供的宽度约束
-     * @param heightMeasureSpec 父容器提供的高度约束
-     */
-    virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
-
-    /**
      * @brief 获取类名
      * @return 类名字符串
      */
     virtual std::string className() const override { return "TextView"; }
-
+protected:
+    void onDraw(m5gfx::M5GFX& display) override;
+    void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
+    int16_t getDesiredWidth() const override;
+    int16_t getDesiredHeight() const override;
 private:
     std::string _text;        ///< 文本内容
     uint32_t _textColor = TFT_BLACK;      ///< 文本颜色

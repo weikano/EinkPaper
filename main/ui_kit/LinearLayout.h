@@ -34,21 +34,10 @@ public:
      */
     void setSpacing(int16_t spacing);
 
-    /**
-     * @brief 重写测量方法
-     * @param widthMeasureSpec 父容器提供的宽度约束
-     * @param heightMeasureSpec 父容器提供的高度约束
-     */
-    virtual void measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
-
-    /**
-     * @brief 重写绘制方法
-     * @param display 显示对象
-     */
-    virtual void draw(m5gfx::M5GFX& display) override;
-
     std::string className() const override { return "LinearLayout"; }
 protected:
+    void onDraw(m5gfx::M5GFX& display) override;
+    void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
     /**
      * @brief 重写布局方法
      * @param left 左边界
