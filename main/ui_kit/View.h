@@ -1,6 +1,7 @@
 #pragma once
 
 #include "M5Unified.h"
+#include <cstdint>
 #include <functional>
 #include "../gestures/TouchGestureDetector.h"
 
@@ -139,12 +140,6 @@ public:
     virtual void draw(m5gfx::M5GFX& display);
 
     /**
-     * @brief 实际执行绘制操作的内部方法
-     * @param display 显示对象
-     */
-    virtual void onDraw(m5gfx::M5GFX& display);
-
-    /**
      * @brief 测量视图所需的空间
      * @param widthMeasureSpec 父容器提供的宽度约束
      * @param heightMeasureSpec 父容器提供的高度约束
@@ -158,16 +153,7 @@ public:
      * @param right 右边界
      * @param bottom 下边界
      */
-    virtual void layout(int16_t left, int16_t top, int16_t right, int16_t bottom);
-
-    /**
-     * @brief 实际执行布局操作的内部方法
-     * @param left 左边界
-     * @param top 上边界
-     * @param right 右边界
-     * @param bottom 下边界
-     */
-    virtual void onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom);
+    virtual void layout(int16_t left, int16_t top, int16_t right, int16_t bottom);    
 
     /**
      * @brief 处理触摸事件
@@ -228,6 +214,21 @@ public:
     virtual std::string className() const { return "View"; }
 
 protected:
+
+    /**
+     * @brief 实际执行绘制操作的内部方法
+     * @param display 显示对象
+     */
+    virtual void onDraw(m5gfx::M5GFX& display);
+    /**
+     * @brief 实际执行布局操作的内部方法
+     * @param left 左边界
+     * @param top 上边界
+     * @param right 右边界
+     * @param bottom 下边界
+     */
+    virtual void onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom);
+
     int16_t _left = 0, _top = 0;      ///< 视图的左上角位置
     int16_t _width = 0, _height = 0;  ///< 视图的宽高
     Visibility _visibility = VISIBLE;   ///< 可见性状态

@@ -93,8 +93,9 @@ public:
      * @brief 通知父视图需要重绘
      */
     virtual void notifyParentOfChange() override;
-
+    
 protected:
+    virtual void onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom) override;
     std::vector<View*> _children;  ///< 子视图列表
     std::map<View*, Visibility> _lastChildVisibilities;  ///< 记录上次子视图的可见性状态
 

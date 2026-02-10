@@ -10,5 +10,6 @@
 #include "ListView.h"
 #include "PagedListView.h"
 #include "Dialog.h"
+#include "QRCodeView.h"
 #include "../page_manager/Page.h"
 #include "../page_manager/PageManager.h"

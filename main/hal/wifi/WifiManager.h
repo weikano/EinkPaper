@@ -1,6 +1,8 @@
 #pragma once
 
 #include <esp_err.h>
+#include <string>
+#include "esp_netif.h"
 
 /**
  * wifi管理类，用于启动和停止wifi热点，以及生成wifi热点的二维码
@@ -28,7 +30,7 @@ public:
      * @param out_size 输出缓冲区的大小
      * @return esp_err_t 错误码
      */
-    esp_err_t generate_ap_qr_code(char* out, size_t out_size);
+    std::string generate_ap_qr_code();
 private:
     /**
      * 初始化nvs flash
@@ -45,4 +47,6 @@ private:
      * @return esp_err_t 错误码
      */
     esp_err_t setup_credentials();
+
+    esp_netif_t * _netif = nullptr;
 };

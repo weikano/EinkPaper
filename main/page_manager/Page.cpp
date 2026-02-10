@@ -1,4 +1,5 @@
 #include "Page.h"
+#include "PageManager.h"
 #include "esp_log.h"
 
 static const char* TAG = "Page";
@@ -72,9 +73,15 @@ bool Page::onClick(int16_t x, int16_t y) {
 
 void Page::onSwipe(TouchGestureDetector::SwipeDirection direction) {
     // 将滑动事件传递给根视图
-    if (_rootView != nullptr) {
-        _rootView->onSwipe(direction);
+    if (_rootView && _rootView->onSwipe(direction)) {
+        return;
+    }    
+    onSwipeDispatched(direction);
+}
+
+void Page::onSwipeDispatched(TouchGestureDetector::SwipeDirection direction) {
+    if(direction == TouchGestureDetector::SwipeDirection::RIGHT) {
+        ESP_LOGD(TAG, "Page %s (type: %d) onSwipeDispatched: %d", _pageName.c_str(), static_cast<int>(_pageType), static_cast<int>(direction));
+        PageManager::getInstance().finishActivity();
     }
-    ESP_LOGD(TAG, "Page %s (type: %d) received swipe event: %d", 
-             _pageName.c_str(), static_cast<int>(_pageType), direction);
 }

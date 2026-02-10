@@ -11,5 +11,6 @@ enum class PageType {
     MENU,
     DIALOG,
     MESSAGE,
+    HTTP_SERVER,
     CUSTOM
 };

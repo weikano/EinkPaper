@@ -1,4 +1,5 @@
 #include "LauncherPage.h"
+#include "Button.h"
 #include "page_manager/PageManager.h"
 #include "esp_log.h"
 #include "message/MessagePageHelper.h"
@@ -28,7 +29,7 @@ void LauncherPage::onCreate() {
     // 创建设置按钮
     _settingsButton = new Button(200, 60);
     _settingsButton->setText("进入设置");
-    _settingsButton->setOnClickListener([this]() {
+    _settingsButton->setOnClickListener([]() {
         ESP_LOGI(TAG, "Settings button clicked");
         // 使用PageManager跳转到设置页面
         PageManager::getInstance().startActivity(PageType::SETTINGS);
@@ -37,7 +38,7 @@ void LauncherPage::onCreate() {
     // 创建文件浏览器按钮
     _fileBrowserButton = new Button(200, 60);
     _fileBrowserButton->setText("文件浏览");
-    _fileBrowserButton->setOnClickListener([this]() {
+    _fileBrowserButton->setOnClickListener([]() {
         ESP_LOGI(TAG, "File Browser button clicked");
         // 使用PageManager跳转到文件浏览器页面
         PageManager::getInstance().startActivity(PageType::FILE_BROWSER);
@@ -45,16 +46,25 @@ void LauncherPage::onCreate() {
 
     _messsageButton = new Button(200, 60);
     _messsageButton->setText("显示消息");
-    _messsageButton->setOnClickListener([this]() {
+    _messsageButton->setOnClickListener([]() {
         ESP_LOGI(TAG, "Message button clicked");
         // 显示消息页面
         showMessagePage("这是一个消息页面！");
+    });
+
+    _httpServerButton = new Button(200, 60);
+    _httpServerButton->setText("HTTP服务器");
+    _httpServerButton->setOnClickListener([]() {
+        ESP_LOGI(TAG, "HTTP Server button clicked");
+        // 使用PageManager跳转到HTTP服务器页面
+        PageManager::getInstance().startActivity(PageType::HTTP_SERVER);
     });
     
     // 添加按钮到布局
     _layout->addChild(_settingsButton);
     _layout->addChild(_fileBrowserButton);
     _layout->addChild(_messsageButton);
+    _layout->addChild(_httpServerButton);
     
     // 设置页面根视图
     setRootView(_layout);

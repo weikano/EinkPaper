@@ -1,3 +1,4 @@
+#include <memory>
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -12,6 +13,7 @@
 #include "pages/launcher/LauncherPage.h"
 #include "pages/message/MessagePage.h"
 #include "refresh_counter/RefreshCounter.h"
+#include "pages/httpserver/HttpServerPage.h"
 #include "hal/sdcard/sdcard.h"
 #include "ui_kit/UIKIT.h"
 #include "gestures/TouchGestureDetector.h"
@@ -32,7 +34,8 @@ static void initPageManager()
 {
     // 获取页面管理器实例
     PageManager &pageManager = PageManager::getInstance();
-    
+    pageManager.registerPage(PageType::HTTP_SERVER, []()
+                             { return std::make_unique<HttpServerPage>(); });
     // 注册文件浏览器页面 - 用于浏览和选择文件
     pageManager.registerPage(PageType::FILE_BROWSER, []()
                              { return std::make_unique<PagedFileBrowserPage>(); });

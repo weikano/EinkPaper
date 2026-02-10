@@ -7,15 +7,21 @@ LinearLayout::LinearLayout(int16_t width, int16_t height, Orientation orientatio
 }
 
 void LinearLayout::setOrientation(Orientation orientation) {
-    _orientation = orientation;
+    if(_orientation != orientation) {
+        _orientation = orientation;
+        markDirty();
+    }    
 }
 
 void LinearLayout::setSpacing(int16_t spacing) {
-    _spacing = spacing;
+    if(_spacing != spacing) {
+        _spacing = spacing;
+        markDirty();
+    }    
 }
 
-void LinearLayout::layout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
-    ViewGroup::layout(left, top, right, bottom);
+void LinearLayout::onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
+    ViewGroup::onLayout(left, top, right, bottom);
 
     if (_orientation == VERTICAL) {
         // 垂直布局 - 从上边距开始
@@ -101,13 +107,13 @@ void LinearLayout::measure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) 
     // 测量子视图
     for (auto child : _children) {
         // 对于LinearLayout，在布局方向上不限制子视图的尺寸，只限制垂直方向
-        if (_orientation == VERTICAL) {
+        // if (_orientation == VERTICAL) {
             // 垂直布局：限制子视图的宽度，但不限制高度
-            child->measure(_width, 0);  // 0表示无限制
-        } else {
-            // 水平布局：限制子视图的高度，但不限制宽度
-            child->measure(0, _height);  // 0表示无限制
-        }
+            child->measure(std::min<int16_t>(widthMeasureSpec, child->getWidth()), std::min<int16_t>(heightMeasureSpec, child->getHeight()));  // 0表示无限制
+        // } else {
+        //     // 水平布局：限制子视图的高度，但不限制宽度
+        //     child->measure(0, _height);  // 0表示无限制
+        // }
     }
 
     // 根据子视图计算自己的尺寸

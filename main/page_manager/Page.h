@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../ui_kit/View.h"
-#include <vector>
 #include <memory>
 
 #include "PageType.h"
@@ -92,10 +91,8 @@ public:
     bool onClick(int16_t x, int16_t y);
 
     void onSwipe(TouchGestureDetector::SwipeDirection direction);
-
-
-
 private:
+    virtual void onSwipeDispatched(TouchGestureDetector::SwipeDirection direction);
     PageType _pageType;                    ///< 页面类型
     std::string _pageName;                 ///< 页面名称
     View* _rootView = nullptr;             ///< 页面根视图

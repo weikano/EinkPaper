@@ -61,9 +61,9 @@ public:
      * @brief 获取当前显示的消息文本
      * @return 当前消息文本
      */
-    std::string getMessage() const;
+    std::string getMessage() const;    
 
-private:
+private:    
     FrameLayout* _layout;     ///< 页面布局
     TextView* _textView;      ///< 文本显示控件
     std::string _message;     ///< 要显示的消息内容

@@ -1,4 +1,5 @@
 #include "ViewGroup.h"
+#include "View.h"
 #include <algorithm>
 
 ViewGroup::ViewGroup(int16_t width, int16_t height)
@@ -148,4 +149,9 @@ bool ViewGroup::isDirty() const {
 void ViewGroup::notifyParentOfChange() {
     // 调用基类的实现
     View::notifyParentOfChange();
+}
+
+void ViewGroup::onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom) {
+    View::onLayout(left, top, right, bottom);
+    ESP_LOGD("ViewGroup", "className :%s, onLayout: left=%d, top=%d, right=%d, bottom=%d", className().c_str(), left, top, right, bottom);
 }

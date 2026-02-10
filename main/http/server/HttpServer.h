@@ -1,6 +1,7 @@
 #pragma once
 #include "esp_http_server.h"
 #include "esp_err.h"
+#include <string>
 /**
  * http服务，用于设置设备配置信息或者wifi传书
  */
@@ -19,6 +20,15 @@ public:
      * 停止http服务
      */
     esp_err_t stop();
+    /**
+     * 获取AP模式下的二维码
+     */
+    std::string getApQRCode();
+    /**
+     * 获取AP模式下的IP地址
+     */
+    std::string getIpAddress();  // 获取AP模式下的IP地址
+    
 private:
     httpd_handle_t _server;
     /**
