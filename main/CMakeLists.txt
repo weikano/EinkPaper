@@ -1,26 +1,10 @@
-idf_component_register(SRCS "main.cpp"                     
-                    "pages/file_browser/paged_file_browser.cpp"                     
-                    "pages/file_browser/PagedFileBrowserPage.cpp" 
-                    "pages/settings/SettingsPage.cpp" 
-                    "pages/launcher/LauncherPage.cpp" 
-                    "pages/message/MessagePage.cpp" 
-                    "refresh_counter/RefreshCounter.cpp" 
-                    "page_manager/PageManager.cpp" 
-                    "page_manager/Page.cpp" 
-                    "hal/sdcard/sdcard.cpp" 
-                    "ui_kit/View.cpp" 
-                    "ui_kit/ViewGroup.cpp" 
-                    "ui_kit/TextView.cpp" 
-                    "ui_kit/Button.cpp" 
-                    "ui_kit/LinearLayout.cpp" 
-                    "ui_kit/FrameLayout.cpp"                     
-                    "ui_kit/PagedListView.cpp"                     
-                    "ui_kit/QRCodeView.cpp"
-                    "config/DeviceConfigManager.cpp"                    
-                    "gestures/TouchGestureDetector.cpp"                    
-                    "hal/wifi/WifiManager.cpp"
-                    "http/server/HttpServer.cpp"
-                    "pages/httpserver/HttpServerPage.cpp"
-                    INCLUDE_DIRS "." "pages" "pages/file_browser" "pages/settings" "pages/launcher" "pages/message" "refresh_counter" "hal/sdcard" "ui_kit" "page_manager" "config" "gestures" "hal/wifi" "http/server" "pages/httpserver"
+file(GLOB_RECURSE SOURCES 
+    "*.cpp"                     
+)
+
+message(STATUS "SOURCES variable contains: ${SOURCES}")
+
+idf_component_register(SRCS ${SOURCES} "main.cpp"
+                    INCLUDE_DIRS "." "pages" "pages/file_browser" "pages/settings" "pages/launcher" "pages/message" "refresh_counter" "hal/sdcard" "ui_kit" "page_manager" "config" "gestures" "hal/wifi" "http" "pages/httpserver"
                     REQUIRES fatfs sdmmc spi_flash esp_wifi esp_http_server
                     )
