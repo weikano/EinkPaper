@@ -74,7 +74,7 @@ esp_err_t WifiManager::setup_credentials() {
   /**
    * 只允许一个连接，避免多个设备同时连接后导致资源冲突，比如同时通过httpserver修改设备配置，同时通过httpserver传书
    */
-  wifi_config.ap.max_connection = 1; // 设置最大连接数，范围1-8。设置
+  wifi_config.ap.max_connection = 4; // 设置最大连接数，范围1-8。设置
   ESP_ERROR_CHECK(
       esp_wifi_set_config(WIFI_IF_AP, &wifi_config)); // 应用配置到 AP 接口上
   return ESP_OK;

@@ -1,5 +1,6 @@
 #include "LauncherPage.h"
 #include "Button.h"
+#include "View.h"
 #include "page_manager/PageManager.h"
 #include "esp_log.h"
 #include "message/MessagePageHelper.h"
@@ -24,6 +25,7 @@ void LauncherPage::onCreate() {
     auto screenHeight = M5.Display.height();
     _layout = new LinearLayout(screenWidth, screenHeight);
     _layout->setOrientation(LinearLayout::Orientation::VERTICAL);    
+    _layout->setPadding(20, 20, 20, 20);
     _layout->setSpacing(20);  // 设置间距
     
     // 创建设置按钮
@@ -36,7 +38,8 @@ void LauncherPage::onCreate() {
     });
     
     // 创建文件浏览器按钮
-    _fileBrowserButton = new Button(200, 60);
+    _fileBrowserButton = new Button(WRAP_CONTENT, WRAP_CONTENT);
+    _fileBrowserButton->setPadding(200, 30, 40, 40);
     _fileBrowserButton->setText("文件浏览");
     _fileBrowserButton->setOnClickListener([]() {
         ESP_LOGI(TAG, "File Browser button clicked");

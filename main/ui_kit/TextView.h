@@ -57,9 +57,10 @@ protected:
     void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
     int16_t getDesiredWidth() const override;
     int16_t getDesiredHeight() const override;
-private:
     std::string _text;        ///< 文本内容
     uint32_t _textColor = TFT_BLACK;      ///< 文本颜色
     uint8_t _textSize;        ///< 文本大小
     uint8_t _textAlign;       ///< 文本对齐方式
+private:    
+    
 };

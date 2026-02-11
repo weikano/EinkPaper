@@ -25,4 +25,5 @@ private:
     std::string uri;
     virtual esp_err_t handleGetRequest(httpd_req_t *req) = 0;
     virtual esp_err_t handlePostRequest(httpd_req_t *req) = 0;
+    virtual esp_err_t handleDeleteRequest(httpd_req_t *req) { return ESP_ERR_NOT_SUPPORTED; } // 默认不支持DELETE
 };

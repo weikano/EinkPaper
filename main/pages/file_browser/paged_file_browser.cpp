@@ -46,7 +46,7 @@ static void (*back_callback)(void) = nullptr;
 static bool is_allowed_file_type(const char *filename) {
     const char *ext = strrchr(filename, '.');
     if (ext != NULL) {
-        if (strcasecmp(ext, ".txt") == 0 || strcasecmp(ext, ".epub") == 0) {
+        if (strcasecmp(ext, ".txt") == 0 || strcasecmp(ext, ".epub") == 0 || strcasecmp(ext, ".jpg") == 0 || strcasecmp(ext, ".jpeg") == 0) {
             return true;
         }
     }

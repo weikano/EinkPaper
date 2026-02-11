@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <string>
+
 /**
  * 设备语言
  */
@@ -37,7 +39,7 @@ enum RefreshMode {
  */
 enum FontSize {
     Small = 0, 
-    Meium = 1, 
+    Medium = 1, 
     Large = 2, 
 };
 
@@ -46,9 +48,9 @@ enum FontSize {
  */
 struct DeviceConfig {
     uint8_t version = 0; // 配置版本号
-    LanguageEnum language;  // 语言设置    
+    LanguageEnum language = LanguageEnum::Chinese;  // 语言设置    
     uint8_t refreshInterval = 10;    // 自动刷新间隔（秒）
-    char* fontPath;           // 字体文件路径  
+    std::string fontPath = "";           // 字体文件路径  
     RefreshMode refreshMode = RefreshMode::Quality; // 刷新模式
-    FontSize fontSize = FontSize::Meium; // 字体大小
+    FontSize fontSize = FontSize::Medium; // 字体大小
 };

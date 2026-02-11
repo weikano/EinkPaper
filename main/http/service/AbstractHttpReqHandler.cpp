@@ -20,8 +20,9 @@ esp_err_t AbstractHttpReqHandler::handleRequest(httpd_req_t *req)
             return handleGetRequest(req);
         case HTTP_POST:
             return handlePostRequest(req);
+        case HTTP_DELETE:
+            return handleDeleteRequest(req);
         default:
-            return ESP_FAIL;
+            return ESP_ERR_NOT_SUPPORTED;
     }
 }
-

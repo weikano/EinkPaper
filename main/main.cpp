@@ -65,9 +65,9 @@ extern "C" void app_main(void)
     DeviceConfigManager::getInstance().loadConfigFromSdCard();
     // 初始清屏：使用 Quality 模式确保屏幕干净
     M5.Display.setFont(&fonts::efontCN_16_b);
-    M5.Display.setEpdMode(lgfx::epd_mode_t::epd_quality);
-    M5.Display.fillScreen(TFT_WHITE);
-    M5.Display.display();    
+    // M5.Display.setEpdMode(lgfx::epd_mode_t::epd_quality);
+    // M5.Display.fillScreen(TFT_WHITE);
+    // M5.Display.display();    
 
     
 
@@ -115,7 +115,7 @@ extern "C" void app_main(void)
                 pageMgr->draw(display);
                 display.endWrite();                
                 // 显示更新 - 使用刷新计数器来决定刷新模式
-                M5.Display.setEpdMode(RefreshCounter::getInstance().refresh());
+                M5.Display.setEpdMode(RefreshCounter::getInstance().refresh());            
                 M5.Display.display();
             }            
             lgfx::v1::delay(10);
