@@ -107,7 +107,7 @@
         
         <div class="upload-section">
             <h2>上传文件到SD卡</h2>
-            <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+            <form id="uploadForm" action="/api/upload" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="fileInput">选择文件:</label>
                     <input type="file" id="fileInput" name="file" required>
@@ -224,7 +224,7 @@
             });
             
             // 打开请求并发送
-            xhr.open('POST', '/upload');
+            xhr.open('POST', '/api/upload');
             xhr.send(formData);
         });
 

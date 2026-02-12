@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>CoreDump 日志管理</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .file-list {
+            margin-top: 20px;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: #f9f9f9;
+            margin-bottom: 8px;
+            border-radius: 5px;
+        }
+        .file-name {
+            flex-grow: 1;
+            word-break: break-all;
+            padding-right: 10px;
+        }
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+        .btn {
+            padding: 8px 12px;
+            font-size: 14px;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-download {
+            background-color: #2196F3;
+            color: white;
+        }
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .action-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .btn-action {
+            padding: 12px 20px;
+            font-size: 16px;
+            text-decoration: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .btn-clear {
+            background-color: #ff9800;
+        }
+        .btn-action:hover {
+            opacity: 0.8;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CoreDump 日志管理</h1>
+        
+        <div id="fileListContainer">
+            <div class="loading">加载中...</div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="clearAllBtn" class="btn-action btn-clear">清空全部</button>
+        </div>
+    </div>
+
+    <script>
+        // 加载文件列表
+        async function loadFileList() {
+            try {
+                const response = await fetch('/api/crashlogs/all', {
+                    method: 'GET'
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
+                }
+                const files = await response.json();
+                
+                const container = document.getElementById('fileListContainer');
+                if (files.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>暂无 CoreDump 日志文件</p></div>';
+                    return;
+                }
+                
+                let html = '<div class="file-list">';
+                files.forEach(file => {
+                    html += `
+                        <div class="file-item">
+                            <div class="file-name">${file.name}</div>
+                            <div class="button-group">
+                                <a href="/api/crashlogs/file?name=${encodeURIComponent(file.name)}" class="btn btn-download">下载</a>
+                                <button class="btn btn-delete" onclick="deleteFile('${file.name}')">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading file list:', error);
+                // 显示详细的错误信息
+                const errorMessage = `<div class="empty-state">
+                    <p>加载失败：</p>
+                    <p style="color: red; font-weight: bold;">${error.message}</p>
+                    <p>请检查服务端状态并重试</p>
+                    <button onclick="loadFileList()" style="margin-top: 10px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">重试</button>
+                </div>`;
+                document.getElementById('fileListContainer').innerHTML = errorMessage;
+                
+                // 弹窗显示详细错误信息
+                alert(`加载CoreDump日志列表失败:\n\n${error.message}\n\n请检查服务端是否正常运行`);
+            }
+        }
+
+        // 删除文件
+        async function deleteFile(filename) {
+            if (!confirm(`确定要删除文件 ${filename} 吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/crashlogs/file?name=${encodeURIComponent(filename)}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadFileList(); // 重新加载文件列表
+                } else {
+                    alert('删除失败');
+                }
+            } catch (error) {
+                console.error('Error deleting file:', error);
+                alert('删除失败');
+            }
+        }
+
+        // 清空所有文件
+        async function clearAllFiles() {
+            if (!confirm('确定要清空所有 CoreDump 日志吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/crashlogs/all', {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadFileList(); // 重新加载文件列表
+                } else {
+                    const errorText = await response.text();
+                    alert(`清空失败: HTTP ${response.status} - ${response.statusText}\n\n${errorText}`);
+                }
+            } catch (error) {
+                console.error('Error clearing all files:', error);
+                alert(`清空全部文件失败:\n\n${error.message}\n\n请检查服务端是否正常运行`);
+            }
+        }
+
+        // 绑定事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFileList();
+            
+            document.getElementById('clearAllBtn').addEventListener('click', clearAllFiles);
+        });
+    </script>
+</body>
+</html>

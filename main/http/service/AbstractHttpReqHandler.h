@@ -12,7 +12,7 @@ public:
      * 构造函数
      * @param uri 处理的uri
      */
-    AbstractHttpReqHandler(std::string uri);
+    AbstractHttpReqHandler(const std::string& uri);
     virtual ~AbstractHttpReqHandler() = default;
     /**
      * 处理http请求

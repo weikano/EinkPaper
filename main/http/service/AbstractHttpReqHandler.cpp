@@ -4,7 +4,7 @@
 #include <string>
 
 
-AbstractHttpReqHandler::AbstractHttpReqHandler(std::string uri) : uri(uri) {}
+AbstractHttpReqHandler::AbstractHttpReqHandler(const std::string& uri) : uri(uri) {}
 
 esp_err_t AbstractHttpReqHandler::handleRequest(httpd_req_t *req)
 {
