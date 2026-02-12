@@ -124,9 +124,20 @@
             
             <div id="message"></div>
         </div>
+        
+        <!-- 上传历史记录 -->
+        <div class="upload-history">
+            <h3>上传历史记录</h3>
+            <div id="historyList">
+                <p>暂无上传记录</p>
+            </div>
+        </div>
     </div>
 
     <script>
+        // 存储上传历史记录
+        let uploadHistory = [];
+        
         // 表单提交事件
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -148,32 +159,144 @@
             document.getElementById('progressFill').style.width = '0%';
             document.getElementById('progressText').textContent = '0%';
             
-            fetch('/upload', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    // 不要设置Content-Type，让浏览器自动设置boundary
-                    // 如果手动设置，会导致boundary不匹配
+            // 记录开始时间
+            const startTime = new Date();
+            
+            // 发送带进度监控的请求
+            const xhr = new XMLHttpRequest();
+            
+            // 设置上传进度监听
+            xhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                    document.getElementById('progressFill').style.width = percentComplete + '%';
+                    document.getElementById('progressText').textContent = percentComplete + '%';
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showMessage(data.message, 'success');
-                    // 重置表单
-                    document.getElementById('uploadForm').reset();
+            });
+            
+            // 请求完成监听
+            xhr.addEventListener('load', function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    const response = JSON.parse(xhr.responseText);
+                    const endTime = new Date();
+                    const duration = ((endTime - startTime) / 1000).toFixed(2); // 秒
+                    
+                    if (response.status === 'success') {
+                        showMessage(response.message, 'success');
+                        
+                        // 添加到上传历史记录
+                        addToHistory(file.name, 'success', response.message, duration);
+                        
+                        // 重置表单
+                        document.getElementById('uploadForm').reset();
+                    } else {
+                        showMessage('上传失败: ' + response.message, 'error');
+                        
+                        // 添加到上传历史记录
+                        addToHistory(file.name, 'error', response.message, duration);
+                    }
                 } else {
-                    showMessage('上传失败: ' + data.message, 'error');
+                    const endTime = new Date();
+                    const duration = ((endTime - startTime) / 1000).toFixed(2); // 秒
+                    
+                    showMessage('上传失败: HTTP ' + xhr.status, 'error');
+                    
+                    // 添加到上传历史记录
+                    addToHistory(file.name, 'error', 'HTTP ' + xhr.status, duration);
                 }
-                // 隐藏进度条
-                document.getElementById('progressContainer').style.display = 'none';
-            })
-            .catch(error => {
-                showMessage('上传文件时发生错误: ' + error.message, 'error');
+                
                 // 隐藏进度条
                 document.getElementById('progressContainer').style.display = 'none';
             });
+            
+            // 请求错误监听
+            xhr.addEventListener('error', function() {
+                const endTime = new Date();
+                const duration = ((endTime - startTime) / 1000).toFixed(2); // 秒
+                
+                showMessage('上传文件时发生网络错误', 'error');
+                
+                // 添加到上传历史记录
+                addToHistory(file.name, 'error', '网络错误', duration);
+                
+                // 隐藏进度条
+                document.getElementById('progressContainer').style.display = 'none';
+            });
+            
+            // 打开请求并发送
+            xhr.open('POST', '/upload');
+            xhr.send(formData);
         });
+
+        // 添加到历史记录
+        function addToHistory(filename, status, message, duration) {
+            const historyItem = {
+                filename: filename,
+                status: status,
+                message: message,
+                timestamp: new Date().toLocaleString(),
+                duration: duration
+            };
+            
+            uploadHistory.unshift(historyItem); // 添加到开头
+            
+            // 限制历史记录数量（最多显示10条）
+            if (uploadHistory.length > 10) {
+                uploadHistory = uploadHistory.slice(0, 10);
+            }
+            
+            updateHistoryDisplay();
+        }
+
+        // 更新历史记录显示
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (uploadHistory.length === 0) {
+                historyList.innerHTML = '<p>暂无上传记录</p>';
+                return;
+            }
+            
+            let historyHtml = '<table class="history-table">';
+            historyHtml += '<thead><tr><th>文件名</th><th>状态</th><th>时间</th></tr></thead>';
+            historyHtml += '<tbody>';
+            
+            uploadHistory.forEach(item => {
+                const statusClass = item.status === 'success' ? 'status-success' : 'status-error';
+                const statusText = item.status === 'success' ? '成功' : '失败';
+                
+                historyHtml += `
+                    <tr>
+                        <td title="${item.filename}">${truncateMiddleFilename(item.filename)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${item.timestamp}</td>
+                    </tr>
+                `;
+            });
+            
+            historyHtml += '</tbody></table>';
+            historyList.innerHTML = historyHtml;
+        }
+        
+        // 中间省略长文件名（保留前缀和后缀，中间用...代替）
+        function truncateMiddleFilename(filename) {
+            if (filename.length <= 25) {
+                return filename;
+            }
+            
+            const prefixLength = 10;  // 保留前面10个字符
+            const suffixLength = 10;  // 保留后面10个字符
+            const ellipsis = '...';
+            
+            if (prefixLength + suffixLength >= filename.length) {
+                return filename;  // 如果文件名不够长，不进行截断
+            }
+            
+            const prefix = filename.substring(0, prefixLength);
+            const suffix = filename.substring(filename.length - suffixLength);
+            
+            return prefix + ellipsis + suffix;
+        }
 
         // 显示消息
         function showMessage(message, type) {
@@ -181,12 +304,56 @@
             messageDiv.textContent = message;
             messageDiv.className = 'message ' + type;
             
-            // 3秒后自动隐藏消息
+            // 5秒后自动隐藏消息
             setTimeout(() => {
                 messageDiv.textContent = '';
                 messageDiv.className = '';
-            }, 3000);
+            }, 5000);
         }
     </script>
+    
+    <style>
+        /* 历史记录表格样式 */
+        .upload-history {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .history-table th,
+        .history-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .history-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
 </body>
 </html>
