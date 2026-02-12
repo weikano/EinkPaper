@@ -16,6 +16,7 @@
 #include "gestures/TouchGestureDetector.h"
 
 #include "config/DeviceConfigManager.h"
+#include "../version.h"
 
 static const char *TAG = "Main";
 
@@ -52,6 +53,7 @@ static void initPageManager()
 
 extern "C" void app_main(void)
 {
+    ESP_LOGI(TAG, "Version: %s, Commit Count: %s", GIT_COMMIT_HASH, GIT_COMMIT_COUNT);
     initPageManager();
     // A. 初始化硬件
     auto cfg = m5::M5Unified::config();
