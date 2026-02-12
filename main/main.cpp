@@ -53,7 +53,7 @@ static void initPageManager()
 
 extern "C" void app_main(void)
 {
-    ESP_LOGI(TAG, "Version: %s, Commit Count: %s", GIT_COMMIT_HASH, GIT_COMMIT_COUNT);
+    ESP_LOGI(TAG, "Version: %s, Commit Count: %s, Commit Time: %s, Build Time: %s", GIT_COMMIT_HASH, GIT_COMMIT_COUNT, GIT_COMMIT_TIME, BUILD_TIME);
     initPageManager();
     // A. 初始化硬件
     auto cfg = m5::M5Unified::config();

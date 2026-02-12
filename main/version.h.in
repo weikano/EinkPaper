@@ -3,5 +3,8 @@
 
 #define GIT_COMMIT_HASH "@GIT_HASH@"
 #define GIT_COMMIT_COUNT "@GIT_COUNT@"
+#define GIT_COMMIT_TIME "@GIT_COMMIT_TIME@"
+#define BUILD_TIME "@BUILD_TIME@"
+
 
 #endif
