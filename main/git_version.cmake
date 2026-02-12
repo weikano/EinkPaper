@@ -15,6 +15,9 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+# 只要 Git 指向发生变化（比如 commit），就强制 CMake 重新配置
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/.git/index")
+
 # 生成版本头文件
 configure_file(
     "${CMAKE_CURRENT_LIST_DIR}/version.h.in"   # 源模板 (绝对路径)
