@@ -57,4 +57,5 @@ private:
     Button* _fileBrowserButton; ///< 文件浏览器按钮
     Button* _messsageButton;    ///< 
     Button* _httpServerButton;  ///< HTTP服务器按钮
+    Button* _triggerCoreDump;   ///< 触发核心转储按钮
 };

@@ -1,11 +1,8 @@
 #include "AbstractHttpReqHandler.h"
 #include "esp_err.h"
 #include "esp_http_server.h"
-#include "esp_log.h"
 #include <string>
 
-
-static const char* TAG = "AbstractHttpReqHandler";
 
 AbstractHttpReqHandler::AbstractHttpReqHandler(std::string uri) : uri(uri) {}
 

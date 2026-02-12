@@ -44,13 +44,14 @@ static void (*back_callback)(void) = nullptr;
  * @return true 如果是允许的文件类型，否则 false
  */
 static bool is_allowed_file_type(const char *filename) {
-    const char *ext = strrchr(filename, '.');
-    if (ext != NULL) {
-        if (strcasecmp(ext, ".txt") == 0 || strcasecmp(ext, ".epub") == 0 || strcasecmp(ext, ".jpg") == 0 || strcasecmp(ext, ".jpeg") == 0) {
-            return true;
-        }
-    }
-    return false;
+    return true;
+    // const char *ext = strrchr(filename, '.');
+    // if (ext != NULL) {
+    //     if (strcasecmp(ext, ".txt") == 0 || strcasecmp(ext, ".epub") == 0 || strcasecmp(ext, ".jpg") == 0 || strcasecmp(ext, ".jpeg") == 0) {
+    //         return true;
+    //     }
+    // }
+    // return false;
 }
 
 /**

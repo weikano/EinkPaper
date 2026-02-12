@@ -1,5 +1,7 @@
+#include <cstdio>
 #include <memory>
 #include <stdio.h>
+#include <sys/stat.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
@@ -17,6 +19,9 @@
 
 #include "config/DeviceConfigManager.h"
 #include "../version.h"
+#include "crash_report/CrashReport.h"
+
+
 
 static const char *TAG = "Main";
 
@@ -64,6 +69,7 @@ extern "C" void app_main(void)
         PageManager::getInstance().startActivity(PageType::MESSAGE, std::make_shared<std::string>("SD card initialization failed!"));
         return;
     }
+    CrashReport::getInstance().saveCrashReport();
     DeviceConfigManager::getInstance().loadConfigFromSdCard();
     // 初始清屏：使用 Quality 模式确保屏幕干净
     M5.Display.setFont(&fonts::efontCN_16_b);

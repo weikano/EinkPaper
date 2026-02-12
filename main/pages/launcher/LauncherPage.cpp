@@ -55,6 +55,14 @@ void LauncherPage::onCreate() {
         showMessagePage("这是一个消息页面！");
     });
 
+    _triggerCoreDump = new Button(200, 60);
+    _triggerCoreDump->setText("触发核心转储");
+    _triggerCoreDump->setOnClickListener([]() {
+        ESP_LOGI(TAG, "Trigger Core Dump button clicked");
+        // 触发核心转储
+        assert( 0 == 1);
+    });
+
     _httpServerButton = new Button(200, 60);
     _httpServerButton->setText("HTTP服务器");
     _httpServerButton->setOnClickListener([]() {
@@ -68,6 +76,7 @@ void LauncherPage::onCreate() {
     _layout->addChild(_fileBrowserButton);
     _layout->addChild(_messsageButton);
     _layout->addChild(_httpServerButton);
+    _layout->addChild(_triggerCoreDump);
     
     // 设置页面根视图
     setRootView(_layout);
