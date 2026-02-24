@@ -31,12 +31,7 @@ public:
      * @return esp_err_t 错误码
      */
     std::string generate_ap_qr_code();
-private:
-    /**
-     * 初始化nvs flash
-     * @return esp_err_t 错误码
-     */
-    esp_err_t init_nvs_flash();
+private:    
     /**
      * 初始化wifi热点
      * @return esp_err_t 错误码

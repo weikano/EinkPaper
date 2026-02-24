@@ -6,17 +6,13 @@
 #include "esp_wifi.h"
 #include "esp_wifi_types_generic.h"
 #include "esp_log.h"
-#include "nvs_flash.h"
 #include <string.h>
 #include <sys/_intsup.h>
 
 static const char *TAG = "WifiManager";
 
 esp_err_t WifiManager::startAp() {
-  esp_err_t err = ESP_OK;
-  if ((err = init_nvs_flash()) != ESP_OK) {
-    return err;
-  }
+  esp_err_t err = ESP_OK;  
   if ((err = init_softap()) != ESP_OK) {
     return err;
   }
@@ -33,16 +29,6 @@ esp_err_t WifiManager::stopAp()
     esp_netif_destroy_default_wifi(_netif);
   }
   return esp_wifi_stop(); 
-}
-
-esp_err_t WifiManager::init_nvs_flash() {
-  esp_err_t ret = nvs_flash_init();
-  if (ret == ESP_ERR_NVS_NO_FREE_PAGES ||
-      ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-    ESP_ERROR_CHECK(nvs_flash_erase());
-    ret = nvs_flash_init();
-  }
-  return ret;
 }
 
 esp_err_t WifiManager::init_softap() {
