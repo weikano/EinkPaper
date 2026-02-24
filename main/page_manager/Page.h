@@ -80,6 +80,10 @@ public:
     virtual void onStop();
     virtual void onRestart();
     virtual void onDestroy();
+    /**
+     * @brief 检查页面是否需要防止自动休眠
+     */
+    virtual bool preventAutoSleep() const { return false; }
 
     /**
      * @brief 绘制页面内容

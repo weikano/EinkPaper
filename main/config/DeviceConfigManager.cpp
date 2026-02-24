@@ -12,11 +12,12 @@ void DeviceConfigManager::loadConfigFromSdCard() {
     
     // 初始化为默认值（来自结构体定义）
     _config = {};
-    _config.version = 0;
-    _config.language = LanguageEnum::Chinese;
+    _config.version = 1;
+    _config.language = Language::Chinese;
     _config.refreshInterval = 10;
     _config.refreshMode = RefreshMode::Quality;
     _config.fontSize = FontSize::Medium;
+    _config.autoSleep = AutoSleepDuration::Sleep10Min;
     _config.fontPath = "";  // std::string 默认值
     
     // 尝试打开配置文件
@@ -34,21 +35,31 @@ void DeviceConfigManager::loadConfigFromSdCard() {
         return;
     }
     
-    // 验证配置版本，如果是旧版本可以在这里做兼容处理
-    if (version != _config.version) {
+    // 仅兼容已知版本
+    if (version > _config.version) {
         ESP_LOGW(TAG, "Config version mismatch, using default config");
         fclose(file);
         return;
     }
     
     // 读取配置数据
-    if (fread(&_config.language, sizeof(LanguageEnum), 1, file) != 1 ||
+    if (fread(&_config.language, sizeof(Language::LanguageEnum), 1, file) != 1 ||
         fread(&_config.refreshInterval, sizeof(uint8_t), 1, file) != 1 ||
-        fread(&_config.refreshMode, sizeof(RefreshMode), 1, file) != 1 ||
-        fread(&_config.fontSize, sizeof(FontSize), 1, file) != 1) {
+        fread(&_config.refreshMode, sizeof(RefreshMode::RefreshModeEnum), 1, file) != 1 ||
+        fread(&_config.fontSize, sizeof(FontSize::FontSizeEnum), 1, file) != 1) {
         ESP_LOGW(TAG, "Failed to read basic config values, using default config");
         fclose(file);
         return;
+    }
+
+    // v1新增字段：自动休眠时间；旧版本默认10分钟
+    if (version >= 1) {
+        if (fread(&_config.autoSleep, sizeof(AutoSleepDuration::AutoSleepDurationEnum), 1, file) != 1) {
+            ESP_LOGW(TAG, "Failed to read autoSleep, fallback to default");
+            _config.autoSleep = AutoSleepDuration::Sleep10Min;
+        }
+    } else {
+        _config.autoSleep = AutoSleepDuration::Sleep10Min;
     }
     
     // 读取字体路径长度
@@ -94,7 +105,7 @@ void DeviceConfigManager::saveConfigToSdCard() {
     }
     
     // 写入配置版本
-    uint8_t version = _config.version;
+    uint8_t version = 1;
     if (fwrite(&version, sizeof(uint8_t), 1, file) != 1) {
         ESP_LOGE(TAG, "Failed to write config version");
         fclose(file);
@@ -102,10 +113,11 @@ void DeviceConfigManager::saveConfigToSdCard() {
     }
     
     // 写入配置数据
-    if (fwrite(&_config.language, sizeof(LanguageEnum), 1, file) != 1 ||
+    if (fwrite(&_config.language, sizeof(Language::LanguageEnum), 1, file) != 1 ||
         fwrite(&_config.refreshInterval, sizeof(uint8_t), 1, file) != 1 ||
-        fwrite(&_config.refreshMode, sizeof(RefreshMode), 1, file) != 1 ||
-        fwrite(&_config.fontSize, sizeof(FontSize), 1, file) != 1) {
+        fwrite(&_config.refreshMode, sizeof(RefreshMode::RefreshModeEnum), 1, file) != 1 ||
+        fwrite(&_config.fontSize, sizeof(FontSize::FontSizeEnum), 1, file) != 1 ||
+        fwrite(&_config.autoSleep, sizeof(AutoSleepDuration::AutoSleepDurationEnum), 1, file) != 1) {
         ESP_LOGE(TAG, "Failed to write basic config values");
         fclose(file);
         return;

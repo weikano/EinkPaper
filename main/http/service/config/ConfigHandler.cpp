@@ -55,7 +55,7 @@ esp_err_t ConfigHandler::handlePostRequest(httpd_req_t *req) {
         while (*lang_pos == ' ' || *lang_pos == '\t') lang_pos++;
         if (*lang_pos == ':') lang_pos++;
         int lang_val = atoi(lang_pos);
-        config.language = (LanguageEnum)lang_val;
+        config.language = static_cast<Language::LanguageEnum>(lang_val);
     }
     
     // 查找refreshInterval字段
@@ -77,7 +77,7 @@ esp_err_t ConfigHandler::handlePostRequest(httpd_req_t *req) {
         while (*mode_pos == ' ' || *mode_pos == '\t') mode_pos++;
         if (*mode_pos == ':') mode_pos++;
         int mode_val = atoi(mode_pos);
-        config.refreshMode = (RefreshMode)mode_val;
+        config.refreshMode = static_cast<RefreshMode::RefreshModeEnum>(mode_val);
     }
     
     // 查找fontSize字段
@@ -87,7 +87,7 @@ esp_err_t ConfigHandler::handlePostRequest(httpd_req_t *req) {
         while (*size_pos == ' ' || *size_pos == '\t') size_pos++;
         if (*size_pos == ':') size_pos++;
         int size_val = atoi(size_pos);
-        config.fontSize = (FontSize)size_val;
+        config.fontSize = static_cast<FontSize::FontSizeEnum>(size_val);
     }
     
     DeviceConfigManager::getInstance().setConfig(config);

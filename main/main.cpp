@@ -16,6 +16,7 @@
 #include "refresh_counter/RefreshCounter.h"
 #include "pages/httpserver/HttpServerPage.h"
 #include "pages/ota/OTAPage.h"
+#include "pages/sleep/SleepPage.h"
 #include "hal/sdcard/sdcard.h"
 #include "gestures/TouchGestureDetector.h"
 
@@ -24,8 +25,7 @@
 #include "crash_report/CrashReport.h"
 #include "hal/nvs/NvsFlashManager.h"
 #include "hal/netif/NetifManager.h"
-
-
+#include "sleep/AutoSleepManager.h"
 
 static const char *TAG = "Main";
 
@@ -44,6 +44,8 @@ static void initPageManager()
                              { return std::make_unique<HttpServerPage>(); });
     pageManager.registerPage(PageType::OTA, []()
                              { return std::make_unique<OTAPage>(); });
+    pageManager.registerPage(PageType::SLEEP, []()
+                             { return std::make_unique<SleepPage>(); });
     // 注册文件浏览器页面 - 用于浏览和选择文件
     pageManager.registerPage(PageType::FILE_BROWSER, []()
                              { return std::make_unique<PagedFileBrowserPage>(); });
@@ -94,6 +96,7 @@ extern "C" void app_main(void)
     // 初始化刷新计数器
     RefreshCounter::getInstance().init(DeviceConfigManager::getInstance().getConfig().refreshInterval); // 每10次刷新执行一次全刷
     // RefreshCounter::getInstance().init(10); // 每10次刷新执行一次全刷
+    AutoSleepManager::getInstance().init();
 
     // UI主循环任务
     xTaskCreatePinnedToCore([](void *param)
@@ -112,21 +115,35 @@ extern "C" void app_main(void)
 
             // 更新触摸状态
             M5.update();
+            const bool powerClicked = M5.BtnPWR.wasClicked();
             auto touch = M5.Touch.getDetail(0);            
+            const bool touchPressed = touch.wasPressed();
 
             // 更新手势检测器
             TouchGestureDetector::SwipeDirection direction = gestureDetector.updateTouch(touch);
+            const bool hasUserInteraction = powerClicked || touchPressed ||
+                                            (direction != TouchGestureDetector::SwipeDirection::NONE);
+            if (hasUserInteraction) {
+                AutoSleepManager::getInstance().notifyUserActivity();
+            }
             
             if (direction != TouchGestureDetector::SwipeDirection::NONE) {
                 ESP_LOGI(TAG, "Detected swipe gesture: %d", direction);
                 // 检测到滑动手势
                 // 将滑动事件传递给当前页面
                 pageMgr->onSwipe(direction);
-            } else if (touch.wasPressed()) {
+            } else if (touchPressed) {
                 // 普通触摸事件（非滑动）
                 // 处理页面点击事件
                 pageMgr->onClick(touch.x, touch.y);
             } 
+            AutoSleepManager::getInstance().update();
+
+            if (pageMgr->getCurrentPage() &&
+                pageMgr->getCurrentPage()->getType() == PageType::SLEEP &&
+                SleepPage::consumeWakeupRequest()) {
+                pageMgr->finishActivity();
+            }
             
             bool shouldUpdateDisplay = pageMgr->getCurrentPage() ? pageMgr->getCurrentPage()->isDirty() : false;
                         
@@ -149,6 +166,7 @@ extern "C" void app_main(void)
                 M5.Display.setEpdMode(RefreshCounter::getInstance().refresh());            
                 M5.Display.display();
             }            
+
             lgfx::v1::delay(10);
             // vTaskDelay(pdMS_TO_TICKS(50)); // 20 FPS
             // // 优化：如果没有需要更新的内容，适当延长延迟以节省电力

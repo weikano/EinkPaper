@@ -125,6 +125,18 @@
                     <option value="2">大 (Large)</option>
                 </select>
             </div>
+
+            <div class="form-group">
+                <label for="autoSleep">自动休眠:</label>
+                <select id="autoSleep" name="autoSleep">
+                    <option value="0">1分钟</option>
+                    <option value="1">3分钟</option>
+                    <option value="2">5分钟</option>
+                    <option value="3">10分钟</option>
+                    <option value="4">30分钟</option>
+                    <option value="5">永不休眠</option>
+                </select>
+            </div>
             
             <button type="submit">保存配置</button>
             <button type="button" class="reset" id="resetBtn">重置为默认配置</button>
@@ -148,6 +160,7 @@
                     document.getElementById('refreshInterval').value = data.refreshInterval;
                     document.getElementById('refreshMode').value = data.refreshMode;
                     document.getElementById('fontSize').value = data.fontSize;
+                    document.getElementById('autoSleep').value = data.autoSleep;
                 })
                 .catch(error => {
                     showMessage('获取配置失败: ' + error.message, 'error');
@@ -162,7 +175,8 @@
                 language: parseInt(document.getElementById('language').value),
                 refreshInterval: parseInt(document.getElementById('refreshInterval').value),
                 refreshMode: parseInt(document.getElementById('refreshMode').value),
-                fontSize: parseInt(document.getElementById('fontSize').value)
+                fontSize: parseInt(document.getElementById('fontSize').value),
+                autoSleep: parseInt(document.getElementById('autoSleep').value)
             };
             
             fetch('/api/config', {

@@ -21,6 +21,7 @@ public:
         _config.refreshInterval = config.refreshInterval;
         _config.refreshMode = config.refreshMode;
         _config.fontSize = config.fontSize;
+        _config.autoSleep = config.autoSleep;
         _config.fontPath = config.fontPath;  // std::string可以直接赋值
     }
 private:

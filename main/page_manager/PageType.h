@@ -13,5 +13,6 @@ enum class PageType {
     MESSAGE,
     HTTP_SERVER,
     OTA,
+    SLEEP,
     CUSTOM
 };

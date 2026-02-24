@@ -64,7 +64,7 @@ esp_err_t ApiConfigHandler::handlePostRequest(httpd_req_t *req) {
         while (*lang_pos == ' ' || *lang_pos == '\t') lang_pos++;
         if (*lang_pos == ':') lang_pos++;
         int lang_val = atoi(lang_pos);
-        config.language = (LanguageEnum)lang_val;
+        config.language = static_cast<Language::LanguageEnum>(lang_val);
     }
     
     // 查找refreshInterval字段
@@ -86,7 +86,7 @@ esp_err_t ApiConfigHandler::handlePostRequest(httpd_req_t *req) {
         while (*mode_pos == ' ' || *mode_pos == '\t') mode_pos++;
         if (*mode_pos == ':') mode_pos++;
         int mode_val = atoi(mode_pos);
-        config.refreshMode = (RefreshMode)mode_val;
+        config.refreshMode = static_cast<RefreshMode::RefreshModeEnum>(mode_val);
     }
     
     // 查找fontSize字段
@@ -96,7 +96,20 @@ esp_err_t ApiConfigHandler::handlePostRequest(httpd_req_t *req) {
         while (*size_pos == ' ' || *size_pos == '\t') size_pos++;
         if (*size_pos == ':') size_pos++;
         int size_val = atoi(size_pos);
-        config.fontSize = (FontSize)size_val;
+        config.fontSize = static_cast<FontSize::FontSizeEnum>(size_val);
+    }
+
+    // 查找autoSleep字段
+    char* sleep_pos = strstr(buf, "\"autoSleep\":");
+    if (sleep_pos) {
+        sleep_pos += strlen("\"autoSleep\":");
+        while (*sleep_pos == ' ' || *sleep_pos == '\t') sleep_pos++;
+        if (*sleep_pos == ':') sleep_pos++;
+        int sleep_val = atoi(sleep_pos);
+        if (sleep_val >= static_cast<int>(AutoSleepDuration::Sleep1Min) &&
+            sleep_val <= static_cast<int>(AutoSleepDuration::SleepNever)) {
+            config.autoSleep = static_cast<AutoSleepDuration::AutoSleepDurationEnum>(sleep_val);
+        }
     }
     
     // 更新配置
@@ -137,6 +150,7 @@ std::string ApiConfigHandler::buildConfigJson(const DeviceConfig& config) {
     json_str += "\"refreshInterval\":" + std::to_string(config.refreshInterval) + ",";
     json_str += "\"refreshMode\":" + std::to_string(static_cast<int>(config.refreshMode)) + ",";
     json_str += "\"fontSize\":" + std::to_string(static_cast<int>(config.fontSize)) + ",";
+    json_str += "\"autoSleep\":" + std::to_string(static_cast<int>(config.autoSleep)) + ",";
     json_str += "\"fontPath\":\"" + config.fontPath + "\"";  // 包含fontPath字段，即使前端不显示
     json_str += "}";
     
@@ -146,12 +160,13 @@ std::string ApiConfigHandler::buildConfigJson(const DeviceConfig& config) {
 esp_err_t ApiConfigHandler::resetConfig() {
     // 创建默认配置
     DeviceConfig defaultConfig = {};
-    defaultConfig.version = 0;
-    defaultConfig.language = LanguageEnum::Chinese;
+    defaultConfig.version = 1;
+    defaultConfig.language = Language::Chinese;
     defaultConfig.refreshInterval = 10;
     defaultConfig.fontPath = std::string("");  // 使用std::string空字符串
     defaultConfig.refreshMode = RefreshMode::Quality;
     defaultConfig.fontSize = FontSize::Medium;
+    defaultConfig.autoSleep = AutoSleepDuration::Sleep10Min;
     
     // 设置默认配置
     DeviceConfigManager::getInstance().setConfig(defaultConfig);
