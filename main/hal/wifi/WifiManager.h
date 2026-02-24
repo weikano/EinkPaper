@@ -2,7 +2,6 @@
 
 #include <esp_err.h>
 #include <string>
-#include "esp_netif.h"
 
 /**
  * wifi管理类，用于启动和停止wifi热点，以及生成wifi热点的二维码
@@ -41,7 +40,5 @@ private:
      * 设置wifi热点的用户名和密码
      * @return esp_err_t 错误码
      */
-    esp_err_t setup_credentials();
-
-    esp_netif_t * _netif = nullptr;
+    esp_err_t setup_credentials();    
 };

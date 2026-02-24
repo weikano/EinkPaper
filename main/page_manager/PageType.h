@@ -12,5 +12,6 @@ enum class PageType {
     DIALOG,
     MESSAGE,
     HTTP_SERVER,
+    OTA,
     CUSTOM
 };

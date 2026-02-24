@@ -8,7 +8,7 @@
 static const char* TAG = "LauncherPage";
 
 LauncherPage::LauncherPage() 
-    : Page(PageType::MENU, "Launcher"), _layout(nullptr), _settingsButton(nullptr), _fileBrowserButton(nullptr) {
+    : Page(PageType::MENU, "Launcher"), _layout(nullptr), _settingsButton(nullptr), _fileBrowserButton(nullptr), _otaButton(nullptr) {
     ESP_LOGI(TAG, "LauncherPage constructed");
 }
 
@@ -70,12 +70,20 @@ void LauncherPage::onCreate() {
         // 使用PageManager跳转到HTTP服务器页面
         PageManager::getInstance().startActivity(PageType::HTTP_SERVER);
     });
+
+    _otaButton = new Button(200, 60);
+    _otaButton->setText("OTA升级");
+    _otaButton->setOnClickListener([]() {
+        ESP_LOGI(TAG, "OTA button clicked");
+        PageManager::getInstance().startActivity(PageType::OTA);
+    });
     
     // 添加按钮到布局
     _layout->addChild(_settingsButton);
     _layout->addChild(_fileBrowserButton);
     _layout->addChild(_messsageButton);
     _layout->addChild(_httpServerButton);
+    _layout->addChild(_otaButton);
     _layout->addChild(_triggerCoreDump);
     
     // 设置页面根视图
@@ -111,6 +119,7 @@ void LauncherPage::onDestroy() {
     _settingsButton = nullptr;
     _fileBrowserButton = nullptr;
     _messsageButton = nullptr;
+    _otaButton = nullptr;
     _layout = nullptr;
     Page::onDestroy();
 }

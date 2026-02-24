@@ -23,18 +23,12 @@ esp_err_t WifiManager::startAp() {
 }
 
 esp_err_t WifiManager::stopAp() 
-{ 
-  ESP_ERROR_CHECK(esp_event_loop_delete_default());
-  if(_netif) {
-    esp_netif_destroy_default_wifi(_netif);
-  }
+{     
   return esp_wifi_stop(); 
 }
 
-esp_err_t WifiManager::init_softap() {
-  ESP_ERROR_CHECK(esp_netif_init());
-  ESP_ERROR_CHECK(esp_event_loop_create_default());
-  _netif = esp_netif_create_default_wifi_ap();
+esp_err_t WifiManager::init_softap() {  
+  esp_netif_create_default_wifi_ap();
 
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
   ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -91,15 +85,3 @@ std::string WifiManager::generate_ap_qr_code()
     
     return qrcode;
 }
-
-// esp_err_t WifiManager::generate_ap_qr_code(char *out, size_t out_size) {
-//   wifi_config_t wifi_config;
-//   esp_err_t ret = esp_wifi_get_config(WIFI_IF_AP, &wifi_config);
-//   if (ret != ESP_OK) {
-//     return ret;
-//   }
-
-//   snprintf(out, out_size, "WIFI:S:%s;T:%s;P:%s;H:false;;", wifi_config.ap.ssid,
-//            "WPA2", wifi_config.ap.password);
-//   return ESP_OK;
-// }

@@ -14,6 +14,7 @@
 #include "pages/message/MessagePage.h"
 #include "refresh_counter/RefreshCounter.h"
 #include "pages/httpserver/HttpServerPage.h"
+#include "pages/ota/OTAPage.h"
 #include "hal/sdcard/sdcard.h"
 #include "gestures/TouchGestureDetector.h"
 
@@ -21,6 +22,7 @@
 #include "../version.h"
 #include "crash_report/CrashReport.h"
 #include "hal/nvs/NvsFlashManager.h"
+#include "hal/netif/NetifManager.h"
 
 
 
@@ -39,6 +41,8 @@ static void initPageManager()
     PageManager &pageManager = PageManager::getInstance();
     pageManager.registerPage(PageType::HTTP_SERVER, []()
                              { return std::make_unique<HttpServerPage>(); });
+    pageManager.registerPage(PageType::OTA, []()
+                             { return std::make_unique<OTAPage>(); });
     // 注册文件浏览器页面 - 用于浏览和选择文件
     pageManager.registerPage(PageType::FILE_BROWSER, []()
                              { return std::make_unique<PagedFileBrowserPage>(); });
@@ -60,6 +64,7 @@ static void initPageManager()
 extern "C" void app_main(void)
 {
     ESP_ERROR_CHECK(NvsFlashManager::getInstance().init());
+    ESP_ERROR_CHECK(NetifManager::getInstance().init());
     ESP_LOGI(TAG, "Version: %s, Commit Count: %s, Commit Time: %s, Build Time: %s", GIT_COMMIT_HASH, GIT_COMMIT_COUNT, GIT_COMMIT_TIME, BUILD_TIME);    
     initPageManager();
     // A. 初始化硬件
