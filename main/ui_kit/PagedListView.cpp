@@ -179,7 +179,7 @@ void PagedListView::_loadCurrentPageData() {
     _currentPageItems = _dataSourceLoader(_currentPage, pageSize);
 }
 
-void PagedListView::onDraw(m5gfx::M5GFX& display) {
+void PagedListView::onDraw(lgfx::LovyanGFX& display) {
     if (_visibility == GONE) {
         return;
     }

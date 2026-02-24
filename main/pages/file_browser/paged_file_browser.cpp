@@ -221,7 +221,7 @@ static std::vector<std::string> data_source_loader(int page, int pageSize) {
 /**
  * @brief 项目渲染器回调
  */
-static void item_renderer(m5gfx::M5GFX& display, int index, const std::string& item, 
+static void item_renderer(lgfx::LovyanGFX& display, int index, const std::string& item, 
                          int16_t x, int16_t y, int16_t width, int16_t height) {
     // 确保尺寸有效
     if (width <= 0 || height <= 0) {

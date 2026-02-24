@@ -36,7 +36,7 @@ void TextView::setTextAlign(uint8_t align) {
     }
 }
 
-void TextView::onDraw(m5gfx::M5GFX& display) {    
+void TextView::onDraw(lgfx::LovyanGFX& display) {    
     if (_visibility == GONE) {
         return;
     }

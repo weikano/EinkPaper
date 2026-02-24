@@ -191,10 +191,10 @@ public:
     bool contains(int16_t x, int16_t y) const;
 
     /**
-     * @brief 绘制视图
-     * @param display 显示对象
+     * @brief 绘制视图（在已有绘制目标上直接绘制）
+     * @param display 绘制目标（Display或Canvas）
      */
-    void draw(m5gfx::M5GFX& display);
+    void draw(lgfx::LovyanGFX& display);
 
     /**
      * @brief 测量视图所需的空间
@@ -276,7 +276,7 @@ protected:
      * @brief 实际执行绘制操作的内部方法
      * @param display 显示对象
      */
-    virtual void onDraw(m5gfx::M5GFX& display);
+    virtual void onDraw(lgfx::LovyanGFX& display);
     /**
      * @brief 获取内容期望的宽度
      * @return 期望的宽度

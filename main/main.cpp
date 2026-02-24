@@ -58,7 +58,7 @@ static void initPageManager()
 
 extern "C" void app_main(void)
 {
-    ESP_LOGI(TAG, "Version: %s, Commit Count: %s, Commit Time: %s, Build Time: %s", GIT_COMMIT_HASH, GIT_COMMIT_COUNT, GIT_COMMIT_TIME, BUILD_TIME);
+    ESP_LOGI(TAG, "Version: %s, Commit Count: %s, Commit Time: %s, Build Time: %s", GIT_COMMIT_HASH, GIT_COMMIT_COUNT, GIT_COMMIT_TIME, BUILD_TIME);    
     initPageManager();
     // A. 初始化硬件
     auto cfg = m5::M5Unified::config();
@@ -91,6 +91,12 @@ extern "C" void app_main(void)
                             {
         PageManager* pageMgr = static_cast<PageManager*>(param);
         m5gfx::M5GFX& display = M5.Display;
+        m5gfx::M5Canvas canvas(&display);
+        canvas.setPsram(true);
+        bool canvasReady = canvas.createSprite(display.width(), display.height()) != nullptr;
+        if (!canvasReady) {
+            ESP_LOGE(TAG, "Canvas createSprite failed, fallback to direct draw");
+        }
         TouchGestureDetector gestureDetector;
         
         while(1) {
@@ -118,10 +124,18 @@ extern "C" void app_main(void)
             
             if (shouldUpdateDisplay) {
                 ESP_LOGI(TAG, "UI需要重绘");
-                // 绘制当前页面
-                display.startWrite();
-                pageMgr->draw(display);
-                display.endWrite();                
+                if (canvasReady) {
+                    canvas.fillScreen(TFT_WHITE);
+                    canvas.setFont(display.getFont());
+                    pageMgr->draw(canvas);
+                    display.startWrite();
+                    canvas.pushSprite(0, 0);
+                    display.endWrite();
+                } else {
+                    display.startWrite();
+                    pageMgr->draw(display);
+                    display.endWrite();
+                }
                 // 显示更新 - 使用刷新计数器来决定刷新模式
                 M5.Display.setEpdMode(RefreshCounter::getInstance().refresh());            
                 M5.Display.display();

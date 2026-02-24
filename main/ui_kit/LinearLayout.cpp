@@ -86,7 +86,7 @@ void LinearLayout::onLayout(int16_t left, int16_t top, int16_t right,
   }
 }
 
-void LinearLayout::onDraw(m5gfx::M5GFX &display) {
+void LinearLayout::onDraw(lgfx::LovyanGFX &display) {
   if (_visibility == GONE) {
     return;
   }

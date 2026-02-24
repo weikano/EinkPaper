@@ -116,7 +116,7 @@ void PageManager::startActivityClearTop(PageType pageType,
     _pageTransitionOccurred = true;
 }
 
-void PageManager::draw(m5gfx::M5GFX& display) {
+void PageManager::draw(lgfx::LovyanGFX& display) {
     if (!_pageStack.empty()) {
         auto currentPage = _pageStack.back().get();
         currentPage->draw(display);

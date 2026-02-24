@@ -53,7 +53,7 @@ public:
      */
     virtual std::string className() const override { return "TextView"; }
 protected:
-    void onDraw(m5gfx::M5GFX& display) override;
+    void onDraw(lgfx::LovyanGFX& display) override;
     void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
     int16_t getDesiredWidth() const override;
     int16_t getDesiredHeight() const override;

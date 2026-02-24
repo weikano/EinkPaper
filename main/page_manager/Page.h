@@ -85,7 +85,7 @@ public:
      * @brief 绘制页面内容
      * @param display 显示对象
      */
-    void draw(m5gfx::M5GFX& display);
+    void draw(lgfx::LovyanGFX& display);
 
     /**
      * @brief 处理点击事件

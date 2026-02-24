@@ -25,7 +25,7 @@ public:
     /**
      * @brief 项目绘制回调类型
      */
-    typedef std::function<void(m5gfx::M5GFX& display, int index, const std::string& item, 
+    typedef std::function<void(lgfx::LovyanGFX& display, int index, const std::string& item, 
                               int16_t x, int16_t y, int16_t width, int16_t height)> ItemRenderer;
 
     /**
@@ -191,7 +191,7 @@ public:
      */
     virtual std::string className() const override { return "PagedListView"; }
 protected:
-    void onDraw(m5gfx::M5GFX& display) override;
+    void onDraw(lgfx::LovyanGFX& display) override;
     void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
 private:
     int16_t _rowCount;                           ///< 每页显示的行数

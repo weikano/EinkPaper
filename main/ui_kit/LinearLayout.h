@@ -36,7 +36,7 @@ public:
 
     std::string className() const override { return "LinearLayout"; }
 protected:
-    void onDraw(m5gfx::M5GFX& display) override;
+    void onDraw(lgfx::LovyanGFX& display) override;
     void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
     /**
      * @brief 重写布局方法

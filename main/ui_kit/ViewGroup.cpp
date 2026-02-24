@@ -51,7 +51,7 @@ View* ViewGroup::getChildAt(size_t index) const {
     return nullptr;
 }
 
-void ViewGroup::onDraw(m5gfx::M5GFX& display) {
+void ViewGroup::onDraw(lgfx::LovyanGFX& display) {
     if (_visibility == GONE) {
         return;
     }

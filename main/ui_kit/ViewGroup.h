@@ -84,7 +84,7 @@ public:
 protected:
     virtual void onLayout(int16_t left, int16_t top, int16_t right, int16_t bottom) override;
     virtual void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;
-    virtual void onDraw(m5gfx::M5GFX& display) override;
+    virtual void onDraw(lgfx::LovyanGFX& display) override;
     std::vector<View*> _children;  ///< 子视图列表
     std::map<View*, Visibility> _lastChildVisibilities;  ///< 记录上次子视图的可见性状态
 private :

@@ -9,7 +9,7 @@ Button::Button(int16_t width, int16_t height)
 
 
 
-void Button::onDraw(m5gfx::M5GFX& display) {
+void Button::onDraw(lgfx::LovyanGFX& display) {
     if (_visibility == GONE) {
         return;
     }

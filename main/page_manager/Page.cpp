@@ -69,7 +69,7 @@ bool Page::isDirty() const {
   return false;
 }
 
-void Page::draw(m5gfx::M5GFX &display) {  
+void Page::draw(lgfx::LovyanGFX &display) {  
   if (_rootView != nullptr) {
     ESP_LOGI(TAG, "Page %s (type: %d) draw", _pageName.c_str(), 
            static_cast<int>(_pageType));

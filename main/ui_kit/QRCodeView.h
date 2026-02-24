@@ -12,7 +12,7 @@ public:
     ~QRCodeView();
 protected:
     void onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) override;    
-    void onDraw(m5gfx::M5GFX &display) override;
+    void onDraw(lgfx::LovyanGFX &display) override;
 
 private:
     std::string _qrcode;    

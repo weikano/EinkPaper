@@ -30,5 +30,5 @@ public:
      */
     virtual std::string className() const override { return "Button"; }
 protected:
-    void onDraw(m5gfx::M5GFX& display) override;
+    void onDraw(lgfx::LovyanGFX& display) override;
 };

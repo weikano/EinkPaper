@@ -22,12 +22,12 @@ void QRCodeView::setQRCode(const std::string& qrcode)
     }    
 }
 
-void QRCodeView::onDraw(m5gfx::M5GFX& display)
+void QRCodeView::onDraw(lgfx::LovyanGFX& display)
 {
     if(_qrcode.empty()) {
         return;
     }
-    M5.Display.qrcode(_qrcode.c_str(), getLeft(), getTop(), getWidth(), 0, true);
+    display.qrcode(_qrcode.c_str(), getLeft(), getTop(), getWidth(), 0, true);
 }
 
 void QRCodeView::onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec)

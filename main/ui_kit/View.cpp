@@ -48,7 +48,7 @@ bool View::contains(int16_t x, int16_t y) const {
     return x >= _left && x < (_left + _width) && y >= _top && y < (_top + _height);
 }
 
-void View::draw(m5gfx::M5GFX& display) {
+void View::draw(lgfx::LovyanGFX& display) {
     if (_visibility == GONE) {
         return;
     }
@@ -66,7 +66,7 @@ void View::draw(m5gfx::M5GFX& display) {
     }
 }
 
-void View::onDraw(m5gfx::M5GFX& display) {
+void View::onDraw(lgfx::LovyanGFX& display) {
     ESP_LOGV(className().c_str(), "onDraw called");
     // 绘制背景（考虑边框宽度）
     int borderWidthOffset = _borderWidth > 0 ? _borderWidth : 0;
