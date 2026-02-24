@@ -2,7 +2,7 @@
 #include "../../../config/DeviceConfigManager.h"
 #include "esp_log.h"
 #include "esp_http_server.h"
-#include "../../../assets/assets.h"
+#include "../PageFileResponder.h"
 #include <string>
 #include <cstring>
 #include <cstdlib>
@@ -16,15 +16,7 @@ ConfigHandler::~ConfigHandler() {}
 esp_err_t ConfigHandler::handleGetRequest(httpd_req_t *req) {
     ESP_LOGI(TAG, "Handling GET request for URI: %s", req->uri);
     
-    // 返回配置页面HTML
-    httpd_resp_set_type(req, "text/html");
-    httpd_resp_set_hdr(req, "Content-Encoding", "identity");
-    
-    // 使用嵌入的HTML资源
-    const size_t html_size = binary_assets_config_html_end - binary_assets_config_html_start;
-    const char* html_content = reinterpret_cast<const char*>(binary_assets_config_html_start);
-    
-    return httpd_resp_send(req, html_content, html_size);
+    return sendFileResponse(req, "/littlefs/config.html", "text/html");
 }
 
 esp_err_t ConfigHandler::handlePostRequest(httpd_req_t *req) {

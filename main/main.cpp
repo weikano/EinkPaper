@@ -2,6 +2,7 @@
 #include <memory>
 #include <stdio.h>
 #include <sys/stat.h>
+#include "LittleFsManager.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
@@ -65,6 +66,7 @@ extern "C" void app_main(void)
 {
     ESP_ERROR_CHECK(NvsFlashManager::getInstance().init());
     ESP_ERROR_CHECK(NetifManager::getInstance().init());
+    ESP_ERROR_CHECK(LittleFsManager::getInstance().mount());
     ESP_LOGI(TAG, "Version: %s, Commit Count: %s, Commit Time: %s, Build Time: %s", GIT_COMMIT_HASH, GIT_COMMIT_COUNT, GIT_COMMIT_TIME, BUILD_TIME);    
     initPageManager();
     // A. 初始化硬件

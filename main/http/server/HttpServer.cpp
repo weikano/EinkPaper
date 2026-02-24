@@ -6,6 +6,7 @@
 #include "../service/crashlog/CrashLogHandler.h"
 #include "../service/crashlog/CrashLogApiAllHandler.h"
 #include "../service/crashlog/CrashLogApiOneHandler.h"
+#include "../service/PageFileResponder.h"
 #include "WifiManager.h"
 #include "esp_err.h"
 #include "esp_http_server.h"
@@ -15,8 +16,6 @@
 #include "lwip/inet.h"
 #include <string>
 #include <sys/_intsup.h>
-
-#include "assets/assets.h"
 
 static const char *TAG = "HttpServer";
 
@@ -42,20 +41,7 @@ static CrashLogApiOneHandler *crashlog_api_one_handler = nullptr;
 
 static esp_err_t handleRootRequest(httpd_req_t *req) {
   ESP_LOGI(TAG, "HttpServer handleRootRequest");
-
-  // 设置响应头
-  httpd_resp_set_type(req, "text/html");
-  httpd_resp_set_hdr(req, "Content-Encoding", "identity");
-
-  // 发送嵌入的HTML内容
-  const size_t html_size =
-      binary_assets_index_html_end - binary_assets_index_html_start;
-  const char *html_content =
-      reinterpret_cast<const char *>(binary_assets_index_html_start);
-
-  httpd_resp_send(req, html_content, html_size);
-
-  return ESP_OK;
+  return sendFileResponse(req, "/littlefs/index.html", "text/html");
 }
 
 static esp_err_t handleConfigRequest(httpd_req_t *req) {
@@ -191,7 +177,8 @@ static void register_uri_handlers(httpd_handle_t server) {
 
 esp_err_t HttpServer::start() {
   ESP_LOGI(TAG, "HttpServer start");
-  esp_err_t ret = startWifiHotSpot();
+  esp_err_t ret = ESP_OK;
+  ret = startWifiHotSpot();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "HttpServer startWifiHotSpot failed");
     return ret;
