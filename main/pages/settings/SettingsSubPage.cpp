@@ -1,9 +1,11 @@
 #include "SettingsSubPage.h"
 
 #include "../../config/DeviceConfigManager.h"
+#include "../../i18n/I18n.h"
 #include "../../page_manager/PageManager.h"
 #include "esp_log.h"
 
+#include <algorithm>
 #include <memory>
 
 static const char* TAG = "SettingsSubPage";
@@ -16,6 +18,13 @@ public:
     void setSelected(bool selected) {
         if (_selected != selected) {
             _selected = selected;
+            markDirty();
+        }
+    }
+
+    void setText(const std::string& text) {
+        if (_text != text) {
+            _text = text;
             markDirty();
         }
     }
@@ -76,7 +85,7 @@ void SettingsSubPage::onCreate() {
     _headerRow->setSpacing(10);
 
     _backButton = new Button(96, 56);
-    _backButton->setText("返回");
+    _backButton->setText(tr(StringId::BACK));
     _backButton->setOnClickListener([]() { PageManager::getInstance().goBack(); });
 
     _titleView = new TextView(screenWidth - 130, 56);
@@ -114,6 +123,7 @@ void SettingsSubPage::onStart() {
 
 void SettingsSubPage::onResume() {
     ESP_LOGI(TAG, "SettingsSubPage onResume");
+    refreshTexts();
     refreshSelection();
     Page::onResume();
 }
@@ -150,30 +160,39 @@ void SettingsSubPage::onOptionSelected(int value) {
     manager.setConfig(config);
     manager.saveConfigToSdCard();
 
+    if (_settingKey == SettingKey::Language) {
+        I18nManager::getInstance().setLanguage(config.language);
+    }
+
+    refreshTexts();
     refreshSelection();
+
+    auto* currentPage = PageManager::getInstance().getCurrentPage();
+    if (currentPage && currentPage->getRootView()) {
+        currentPage->getRootView()->forceRedraw();
+    }
+}
+
+void SettingsSubPage::refreshTexts() {
+    if (_backButton) {
+        _backButton->setText(tr(StringId::BACK));
+    }
+    if (_titleView) {
+        _titleView->setText(getSettingTitle(_settingKey));
+    }
+
+    const auto options = getSettingOptions(_settingKey);
+    const size_t count = std::min(options.size(), _optionBindings.size());
+    for (size_t i = 0; i < count; ++i) {
+        if (_optionBindings[i].view) {
+            _optionBindings[i].view->setText(options[i].second);
+        }
+    }
 }
 
 void SettingsSubPage::refreshSelection() {
     const auto& config = DeviceConfigManager::getInstance().getConfig();
-
-    int selectedValue = 0;
-    switch (_settingKey) {
-        case SettingKey::Language:
-            selectedValue = static_cast<int>(config.language);
-            break;
-        case SettingKey::RefreshMode:
-            selectedValue = static_cast<int>(config.refreshMode);
-            break;
-        case SettingKey::FontSize:
-            selectedValue = static_cast<int>(config.fontSize);
-            break;
-        case SettingKey::AutoSleep:
-            selectedValue = static_cast<int>(config.autoSleep);
-            break;
-        default:
-            selectedValue = 0;
-            break;
-    }
+    const int selectedValue = getSelectedSettingValue(_settingKey, config);
 
     for (auto& binding : _optionBindings) {
         if (binding.view) {

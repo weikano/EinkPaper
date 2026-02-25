@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../config/DeviceConfig.h"
+#include "../../i18n/I18n.h"
 
 #include <cstdint>
 #include <string>
@@ -22,3 +23,4 @@ const char* getSettingTitle(SettingKey key);
 std::string getSettingCurrentValueText(SettingKey key, const DeviceConfig& config);
 std::vector<std::pair<int, std::string>> getSettingOptions(SettingKey key);
 void applySettingValue(DeviceConfig& config, SettingKey key, int value);
+int getSelectedSettingValue(SettingKey key, const DeviceConfig& config);

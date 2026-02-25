@@ -27,6 +27,7 @@
 #include "hal/nvs/NvsFlashManager.h"
 #include "hal/netif/NetifManager.h"
 #include "sleep/AutoSleepManager.h"
+#include "i18n/I18n.h"
 
 static const char *TAG = "Main";
 
@@ -85,7 +86,8 @@ extern "C" void app_main(void)
     }
     CrashReport::getInstance().saveCrashReport();
     DeviceConfigManager::getInstance().loadConfigFromSdCard();
-    // 初始清屏：使用 Quality 模式确保屏幕干净
+    I18nManager::getInstance().init(DeviceConfigManager::getInstance().getConfig().language);
+    // 统一使用可显示 CJK 的字体，避免语言切换后影响文件名等中文显示。
     M5.Display.setFont(&fonts::efontCN_16_b);
     // M5.Display.setEpdMode(lgfx::epd_mode_t::epd_quality);
     // M5.Display.fillScreen(TFT_WHITE);

@@ -31,6 +31,7 @@ private:
     };
 
     void onOptionSelected(int value);
+    void refreshTexts();
     void refreshSelection();
 
     FrameLayout* _layout = nullptr;

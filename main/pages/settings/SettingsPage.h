@@ -24,11 +24,13 @@ public:
 private:
     struct SettingItemBinding {
         SettingKey key;
+        TextView* titleView;
         TextView* valueView;
     };
 
     void addSettingItem(SettingKey key);
     void refreshConfigValues();
+    void refreshStaticTexts();
 
     FrameLayout* _layout = nullptr;
     LinearLayout* _rootContainer = nullptr;

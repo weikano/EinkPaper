@@ -1,6 +1,7 @@
 #include "SettingsPage.h"
 
 #include "../../config/DeviceConfigManager.h"
+#include "../../i18n/I18n.h"
 #include "../../page_manager/PageManager.h"
 #include "../../page_manager/PageType.h"
 #include "esp_log.h"
@@ -33,11 +34,11 @@ void SettingsPage::onCreate() {
     _headerRow->setSpacing(10);
 
     _backButton = new Button(96, 56);
-    _backButton->setText("返回");
+    _backButton->setText(tr(StringId::BACK));
     _backButton->setOnClickListener([]() { PageManager::getInstance().goBack(); });
 
     _titleView = new TextView(screenWidth - 130, 56);
-    _titleView->setText("设置");
+    _titleView->setText(tr(StringId::SETTINGS_TITLE));
     _titleView->setTextAlign(1);
 
     _headerRow->addChild(_backButton);
@@ -68,6 +69,7 @@ void SettingsPage::onStart() {
 
 void SettingsPage::onResume() {
     ESP_LOGI(TAG, "SettingsPage onResume");
+    refreshStaticTexts();
     refreshConfigValues();
     Page::onResume();
 }
@@ -122,14 +124,26 @@ void SettingsPage::addSettingItem(SettingKey key) {
     itemLayout->addChild(valueView);
     _listContainer->addChild(itemLayout);
 
-    _itemBindings.push_back({key, valueView});
+    _itemBindings.push_back({key, titleView, valueView});
 }
 
 void SettingsPage::refreshConfigValues() {
     const auto& config = DeviceConfigManager::getInstance().getConfig();
     for (auto& binding : _itemBindings) {
+        if (binding.titleView) {
+            binding.titleView->setText(getSettingTitle(binding.key));
+        }
         if (binding.valueView) {
             binding.valueView->setText(getSettingCurrentValueText(binding.key, config));
         }
+    }
+}
+
+void SettingsPage::refreshStaticTexts() {
+    if (_backButton) {
+        _backButton->setText(tr(StringId::BACK));
+    }
+    if (_titleView) {
+        _titleView->setText(tr(StringId::SETTINGS_TITLE));
     }
 }
