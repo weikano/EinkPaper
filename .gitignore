@@ -77,3 +77,4 @@ Desktop.ini
 *.sln.docstates # Visual Studio
 
 mappings/
+tools/fonts/SourceHanSerif/*.otf

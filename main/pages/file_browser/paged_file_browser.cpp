@@ -1,6 +1,7 @@
 #include "paged_file_browser.h"
 #include "ui_kit/UIKIT.h"
 #include "ui_kit/PagedListView.h"
+#include "../../font_engine/FontEngineService.h"
 #include "esp_log.h"
 #include "esp_heap_caps.h"
 #include "freertos/FreeRTOS.h"
@@ -37,6 +38,43 @@ static SemaphoreHandle_t paged_file_browser_mutex = NULL;
 // 回调函数指针定义
 static FileSelectedCallback paged_file_selected_callback = nullptr;
 static void (*back_callback)(void) = nullptr;
+
+static int16_t measure_text_width(const std::string& text) {
+    auto& svc = font_engine::FontEngineService::getInstance();
+    if (!svc.isReady()) {
+        return static_cast<int16_t>(text.size() * 8);
+    }
+    return svc.engine().layoutText(text, 32767).width;
+}
+
+static std::string ellipsize_text(const std::string& text, int16_t max_width) {
+    if (max_width <= 0) {
+        return "";
+    }
+    if (measure_text_width(text) <= max_width) {
+        return text;
+    }
+    const std::string ellipsis = "...";
+    const int16_t ellipsis_width = measure_text_width(ellipsis);
+    if (ellipsis_width >= max_width) {
+        return "";
+    }
+
+    int left = 0;
+    int right = static_cast<int>(text.size());
+    std::string result = ellipsis;
+    while (left <= right) {
+        const int mid = left + (right - left) / 2;
+        const std::string candidate = text.substr(0, mid) + ellipsis;
+        if (measure_text_width(candidate) <= max_width) {
+            result = candidate;
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return result;
+}
 
 /**
  * @brief 检查文件扩展名是否为允许的类型
@@ -232,44 +270,16 @@ static void item_renderer(lgfx::LovyanGFX& display, int index, const std::string
     // display.fillRect(x, y, width, height, TFT_WHITE);
     // display.drawRect(x, y, width, height, TFT_BLACK);
     
-    // 绘制项目文本
-    display.setTextColor(TFT_BLACK);
-    display.setTextSize(1.5);
-    
-    // 简单的文本绘制，带省略号处理
-    std::string text = item;
-    int16_t text_width = display.textWidth(text.c_str());
-    int16_t max_width = width - 10; // 考虑内边距
-    
-    if (text_width > max_width && max_width > 0) {
-        std::string ellipsis = "...";
-        int16_t ellipsis_width = display.textWidth(ellipsis.c_str());
-        
-        int left = 0;
-        int right = text.length();
-        std::string result = ellipsis;
-        
-        while (left <= right && max_width > ellipsis_width) {
-            int mid = left + (right - left) / 2;
-            std::string substr = text.substr(0, mid);
-            std::string candidate = substr + ellipsis;
-            
-            if (display.textWidth(candidate.c_str()) <= max_width) {
-                result = candidate;
-                left = mid + 1;
-            } else {
-                right = mid - 1;
-            }
-        }
-        
-        text = result;
+    auto& svc = font_engine::FontEngineService::getInstance();
+    if (!svc.isReady()) {
+        return;
     }
-    
+    std::string text = ellipsize_text(item, width - 10);
     int16_t textX = x + 5;
-    int16_t textY = y + (height - display.fontHeight()) / 2;
+    auto layout = svc.engine().layoutText(text, width - 10);
+    int16_t textY = y + (height - layout.height) / 2;
     ESP_LOGV("FileBrowser", "Rendering item: %s at (%d, %d, %d, %d)", text.c_str(), textX, textY, width, height);
-    display.setCursor(textX, textY);
-    display.print(text.c_str());
+    svc.engine().drawText(display, text, textX, textY, width - 10, TFT_BLACK, TFT_WHITE, false);
 }
 
 void paged_file_browser_init(LinearLayout* parent) {

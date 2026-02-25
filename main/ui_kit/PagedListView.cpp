@@ -1,8 +1,61 @@
 #include "PagedListView.h"
 #include "TextView.h"
+#include "../font_engine/FontEngineService.h"
 #include "esp_log.h"
 #include <algorithm>
 #include <cmath>
+
+namespace {
+int16_t measure_text_width(const std::string& text) {
+    auto& svc = font_engine::FontEngineService::getInstance();
+    if (!svc.isReady()) {
+        return static_cast<int16_t>(text.size() * 8);
+    }
+    return svc.engine().layoutText(text, 32767).width;
+}
+
+std::string ellipsize_text(const std::string& text, int16_t max_width) {
+    if (max_width <= 0) {
+        return "";
+    }
+    if (measure_text_width(text) <= max_width) {
+        return text;
+    }
+    const std::string ellipsis = "...";
+    const int16_t ellipsis_width = measure_text_width(ellipsis);
+    if (ellipsis_width >= max_width) {
+        return "";
+    }
+
+    int left = 0;
+    int right = static_cast<int>(text.size());
+    std::string result = ellipsis;
+    while (left <= right) {
+        const int mid = left + (right - left) / 2;
+        const std::string candidate = text.substr(0, mid) + ellipsis;
+        if (measure_text_width(candidate) <= max_width) {
+            result = candidate;
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return result;
+}
+
+void draw_text(lgfx::LovyanGFX& display,
+               const std::string& text,
+               int16_t x,
+               int16_t y,
+               int16_t max_width,
+               uint32_t color) {
+    auto& svc = font_engine::FontEngineService::getInstance();
+    if (!svc.isReady()) {
+        return;
+    }
+    svc.engine().drawText(display, text, x, y, max_width, color, TFT_WHITE, false);
+}
+}  // namespace
 
 PagedListView::PagedListView(int16_t width, int16_t height)
     : ViewGroup(width, height), 
@@ -215,43 +268,15 @@ void PagedListView::onDraw(lgfx::LovyanGFX& display) {
                 display.fillRect(itemX, itemY, itemW, itemH, TFT_WHITE);
                 display.drawRect(itemX, itemY, itemW, itemH, TFT_BLACK);
                 
-                // 绘制项目文本
-                display.setTextColor(TFT_BLACK);
-                display.setTextSize(1);
-                
-                // 简单的文本绘制，带省略号处理
-                std::string text = _currentPageItems[i];
-                int16_t text_width = display.textWidth(text.c_str());
-                int16_t max_width = itemW - 10; // 考虑内边距
-                
-                if (text_width > max_width && max_width > 0) {
-                    std::string ellipsis = "...";
-                    int16_t ellipsis_width = display.textWidth(ellipsis.c_str());
-                    
-                    int left = 0;
-                    int right = text.length();
-                    std::string result = ellipsis;
-                    
-                    while (left <= right && max_width > ellipsis_width) {
-                        int mid = left + (right - left) / 2;
-                        std::string substr = text.substr(0, mid);
-                        std::string candidate = substr + ellipsis;
-                        
-                        if (display.textWidth(candidate.c_str()) <= max_width) {
-                            result = candidate;
-                            left = mid + 1;
-                        } else {
-                            right = mid - 1;
-                        }
-                    }
-                    
-                    text = result;
-                }
-                
+                std::string text = ellipsize_text(_currentPageItems[i], itemW - 10);
                 int16_t textX = itemX + 5;
-                int16_t textY = itemY + (itemH - display.fontHeight()) / 2;
-                display.setCursor(textX, textY);
-                display.print(text.c_str());
+                auto& svc = font_engine::FontEngineService::getInstance();
+                int16_t textY = itemY + 5;
+                if (svc.isReady()) {
+                    auto layout = svc.engine().layoutText(text, itemW - 10);
+                    textY = itemY + (itemH - layout.height) / 2;
+                }
+                draw_text(display, text, textX, textY, itemW - 10, TFT_BLACK);
             }
         }
         
@@ -273,46 +298,63 @@ void PagedListView::onDraw(lgfx::LovyanGFX& display) {
         int16_t prevButtonY = controlBarY + (controlBarHeight - buttonHeight) / 2;
         display.fillRect(prevButtonX, prevButtonY, buttonWidth, buttonHeight, TFT_WHITE);
         display.drawRect(prevButtonX, prevButtonY, buttonWidth, buttonHeight, TFT_BLACK);
-        display.setTextColor(TFT_BLACK);
-        display.setTextSize(1);
-        display.setCursor(prevButtonX + (buttonWidth - display.textWidth("上一页")) / 2, 
-                         prevButtonY + (buttonHeight - display.fontHeight()) / 2);
-        display.print("上一页");
+        const std::string prevText = "上一页";
+        int16_t prevTextW = measure_text_width(prevText);
+        int16_t prevTextX = prevButtonX + (buttonWidth - prevTextW) / 2;
+        int16_t prevTextY = prevButtonY + 4;
+        auto& svc = font_engine::FontEngineService::getInstance();
+        if (svc.isReady()) {
+            auto layout = svc.engine().layoutText(prevText, buttonWidth);
+            prevTextY = prevButtonY + (buttonHeight - layout.height) / 2;
+        }
+        draw_text(display, prevText, prevTextX, prevTextY, buttonWidth, TFT_BLACK);
         
         // 页码信息
         std::string pageInfo = "第 " + std::to_string(_currentPage + 1) + "/" + std::to_string(_totalPages) + " 页";
-        int16_t pageInfoWidth = display.textWidth(pageInfo.c_str());
+        int16_t pageInfoWidth = measure_text_width(pageInfo);
         int16_t pageInfoX = _left + padding + buttonWidth + padding;
-        int16_t pageInfoY = controlBarY + (controlBarHeight - display.fontHeight()) / 2;
-        display.setCursor(pageInfoX, pageInfoY);
-        display.print(pageInfo.c_str());
+        int16_t pageInfoY = controlBarY + 4;
+        if (svc.isReady()) {
+            auto layout = svc.engine().layoutText(pageInfo, _width);
+            pageInfoY = controlBarY + (controlBarHeight - layout.height) / 2;
+        }
+        draw_text(display, pageInfo, pageInfoX, pageInfoY, _width - pageInfoX, TFT_BLACK);
         
         // 总数信息（在页码旁边）
         std::string totalCountInfo = "(" + std::to_string(_totalItems) + "项)";        
         int16_t totalCountX = pageInfoX + pageInfoWidth + padding;
         int16_t totalCountY = pageInfoY;
-        display.setCursor(totalCountX, totalCountY);
-        display.print(totalCountInfo.c_str());
+        draw_text(display, totalCountInfo, totalCountX, totalCountY, _width - totalCountX, TFT_BLACK);
         
         // "下一页"按钮
         int16_t nextButtonX = _left + _width - buttonWidth * 2 - padding * 2;  // 调整位置为倒数第二个按钮
         int16_t nextButtonY = controlBarY + (controlBarHeight - buttonHeight) / 2;
         display.fillRect(nextButtonX, nextButtonY, buttonWidth, buttonHeight, TFT_WHITE);
         display.drawRect(nextButtonX, nextButtonY, buttonWidth, buttonHeight, TFT_BLACK);
-        display.setTextColor(TFT_BLACK);
-        display.setCursor(nextButtonX + (buttonWidth - display.textWidth("下一页")) / 2, 
-                         nextButtonY + (buttonHeight - display.fontHeight()) / 2);
-        display.print("下一页");
+        const std::string nextText = "下一页";
+        int16_t nextTextW = measure_text_width(nextText);
+        int16_t nextTextX = nextButtonX + (buttonWidth - nextTextW) / 2;
+        int16_t nextTextY = nextButtonY + 4;
+        if (svc.isReady()) {
+            auto layout = svc.engine().layoutText(nextText, buttonWidth);
+            nextTextY = nextButtonY + (buttonHeight - layout.height) / 2;
+        }
+        draw_text(display, nextText, nextTextX, nextTextY, buttonWidth, TFT_BLACK);
         
         // "返回"按钮
         int16_t backButtonX = _left + _width - buttonWidth - padding;  // 最右边的按钮
         int16_t backButtonY = controlBarY + (controlBarHeight - buttonHeight) / 2;
         display.fillRect(backButtonX, backButtonY, buttonWidth, buttonHeight, TFT_WHITE);
         display.drawRect(backButtonX, backButtonY, buttonWidth, buttonHeight, TFT_BLACK);
-        display.setTextColor(TFT_BLACK);
-        display.setCursor(backButtonX + (buttonWidth - display.textWidth("返回")) / 2, 
-                         backButtonY + (buttonHeight - display.fontHeight()) / 2);
-        display.print("返回");
+        const std::string backText = "返回";
+        int16_t backTextW = measure_text_width(backText);
+        int16_t backTextX = backButtonX + (buttonWidth - backTextW) / 2;
+        int16_t backTextY = backButtonY + 4;
+        if (svc.isReady()) {
+            auto layout = svc.engine().layoutText(backText, buttonWidth);
+            backTextY = backButtonY + (buttonHeight - layout.height) / 2;
+        }
+        draw_text(display, backText, backTextX, backTextY, buttonWidth, TFT_BLACK);
         
         // 绘制边框
         if (_borderWidth > 0) {

@@ -28,6 +28,7 @@
 #include "hal/netif/NetifManager.h"
 #include "sleep/AutoSleepManager.h"
 #include "i18n/I18n.h"
+#include "font_engine/FontEngineService.h"
 
 static const char *TAG = "Main";
 
@@ -73,6 +74,7 @@ extern "C" void app_main(void)
     ESP_ERROR_CHECK(NvsFlashManager::getInstance().init());
     ESP_ERROR_CHECK(NetifManager::getInstance().init());
     ESP_ERROR_CHECK(LittleFsManager::getInstance().mount());
+    ESP_ERROR_CHECK(font_engine::FontEngineService::getInstance().initDefaultFont());
     ESP_LOGI(TAG, "Version: %s, Commit Count: %s, Commit Time: %s, Build Time: %s", GIT_COMMIT_HASH, GIT_COMMIT_COUNT, GIT_COMMIT_TIME, BUILD_TIME);    
     initPageManager();
     // A. 初始化硬件
@@ -86,14 +88,7 @@ extern "C" void app_main(void)
     }
     CrashReport::getInstance().saveCrashReport();
     DeviceConfigManager::getInstance().loadConfigFromSdCard();
-    I18nManager::getInstance().init(DeviceConfigManager::getInstance().getConfig().language);
-    // 统一使用可显示 CJK 的字体，避免语言切换后影响文件名等中文显示。
-    M5.Display.setFont(&fonts::efontCN_16_b);
-    // M5.Display.setEpdMode(lgfx::epd_mode_t::epd_quality);
-    // M5.Display.fillScreen(TFT_WHITE);
-    // M5.Display.display();    
-
-    
+    I18nManager::getInstance().init(DeviceConfigManager::getInstance().getConfig().language);    
 
     // 启动启动器页面（作为首页）
     PageManager::getInstance().startActivity(PageType::MENU);

@@ -1,30 +1,29 @@
 #include "SettingsSubPage.h"
 
 #include "../../config/DeviceConfigManager.h"
+#include "../../font_engine/FontEngineService.h"
 #include "../../i18n/I18n.h"
 #include "../../page_manager/PageManager.h"
 #include "esp_log.h"
+#include "lgfx/v1/misc/enum.hpp"
 
 #include <algorithm>
 #include <memory>
 
 static const char* TAG = "SettingsSubPage";
 
-class SettingsSubPage::OptionItemView : public View {
+class SettingsSubPage::OptionItemView : public TextView {
 public:
     OptionItemView(int16_t width, int16_t height, const std::string& text)
-        : View(width, height), _text(text) {}
+        : TextView(width, height) {
+        setText(text);
+        setPadding(12, 0, 12, 0);
+        setTextAlign(0);
+    }
 
     void setSelected(bool selected) {
         if (_selected != selected) {
             _selected = selected;
-            markDirty();
-        }
-    }
-
-    void setText(const std::string& text) {
-        if (_text != text) {
-            _text = text;
             markDirty();
         }
     }
@@ -39,21 +38,24 @@ protected:
 
         const uint32_t background = _selected ? TFT_BLACK : TFT_WHITE;
         const uint32_t textColor = _selected ? TFT_WHITE : TFT_BLACK;
-
-        display.fillRect(_left, _top, _width, _height, background);
+        if(background != TFT_WHITE) {
+            display.fillRect(_left, _top, _width, _height, background);
+        }        
         display.drawRect(_left, _top, _width, _height, TFT_BLACK);
+        setTextColor(textColor);
 
-        display.setTextColor(textColor);
-        display.setTextSize(1);
-
-        int16_t textX = _left + 12;
-        int16_t textY = _top + (_height - display.fontHeight()) / 2;
-        display.setCursor(textX, textY);
-        display.print(_text.c_str());
+        auto& fontSvc = font_engine::FontEngineService::getInstance();
+        if (!fontSvc.isReady() || _text.empty()) {
+            return;
+        }
+        const int16_t drawX = _left + getPaddingLeft();
+        const int16_t maxWidth = _width - getPaddingLeft() - getPaddingRight();
+        const auto layout = fontSvc.engine().layoutText(_text, maxWidth);
+        const int16_t drawY = _top + (_height - layout.height) / 2;
+        fontSvc.engine().drawText(display, _text, drawX, drawY, maxWidth, textColor, background, false);
     }
 
 private:
-    std::string _text;
     bool _selected = false;
 };
 

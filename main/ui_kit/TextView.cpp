@@ -1,5 +1,8 @@
 #include "TextView.h"
 
+#include "../font_engine/FontEngineService.h"
+#include <algorithm>
+
 TextView::TextView(int16_t width, int16_t height)
     : View(width, height), _text(""), _textColor(TFT_BLACK), _textSize(1), _textAlign(0) {
 }
@@ -7,7 +10,7 @@ TextView::TextView(int16_t width, int16_t height)
 void TextView::setText(const std::string& text) {
     if (_text != text) {
         _text = text;
-        markDirty();  // 文本变化时标记为需要重绘
+        markDirty();
     }
 }
 
@@ -18,125 +21,132 @@ const std::string& TextView::getText() const {
 void TextView::setTextColor(uint32_t color) {
     if (_textColor != color) {
         _textColor = color;
-        markDirty();  // 颜色变化时标记为需要重绘
+        markDirty();
     }
 }
 
 void TextView::setTextSize(uint8_t size) {
     if (_textSize != size) {
         _textSize = size;
-        markDirty();  // 字体大小变化时标记为需要重绘
+        markDirty();
     }
 }
 
 void TextView::setTextAlign(uint8_t align) {
     if (_textAlign != align) {
         _textAlign = align;
-        markDirty();  // 对齐方式变化时标记为需要重绘
+        markDirty();
     }
 }
 
-void TextView::onDraw(lgfx::LovyanGFX& display) {    
+void TextView::onDraw(lgfx::LovyanGFX& display) {
     if (_visibility == GONE) {
         return;
     }
 
-    // 绘制背景
     View::onDraw(display);
 
-    if (_visibility == VISIBLE && !_text.empty()) {
-        display.setTextColor(_textColor);
-        display.setTextSize(_textSize);
-        
-        // 考虑padding的可用绘制区域
-        int16_t contentX = _left + _paddingLeft;
-        int16_t contentY = _top + _paddingTop;
-        int16_t contentWidth = _measuredWidth - _paddingLeft - _paddingRight;
-        int16_t contentHeight = _measuredHeight - _paddingTop - _paddingBottom;
-        
-        int16_t textWidth = display.textWidth(_text.c_str());
-        int16_t drawX = contentX;
-        
-        // 根据对齐方式计算文本绘制位置（在内容区域内）
-        switch (_textAlign) {
-            case 1: // 居中对齐
-                drawX = contentX + (contentWidth - textWidth) / 2;
-                break;
-            case 2: // 右对齐
-                drawX = contentX + contentWidth - textWidth;
-                break;
-            default: // 左对齐
-                drawX = contentX;
-                break;
-        }
-        
-        int16_t drawY = contentY + (contentHeight - display.fontHeight()) / 2;
-        
-        display.setCursor(drawX, drawY);
-        display.print(_text.c_str());
+    if (_visibility != VISIBLE || _text.empty()) {
+        return;
     }
+
+    const int16_t contentX = _left + _paddingLeft;
+    const int16_t contentY = _top + _paddingTop;
+    const int16_t contentWidth = _measuredWidth - _paddingLeft - _paddingRight;
+    const int16_t contentHeight = _measuredHeight - _paddingTop - _paddingBottom;
+
+    if (contentWidth <= 0 || contentHeight <= 0) {
+        return;
+    }
+
+    auto& fontSvc = font_engine::FontEngineService::getInstance();
+    if (!fontSvc.isReady()) {
+        return;
+    }
+    const auto layout = fontSvc.engine().layoutText(_text, contentWidth);
+
+    int16_t drawX = contentX;
+    switch (_textAlign) {
+        case 1:
+            drawX = contentX + (contentWidth - layout.width) / 2;
+            break;
+        case 2:
+            drawX = contentX + contentWidth - layout.width;
+            break;
+        default:
+            drawX = contentX;
+            break;
+    }
+
+    const int16_t drawY = contentY + (contentHeight - layout.height) / 2;
+    fontSvc.engine().drawText(display,
+                              _text,
+                              drawX,
+                              drawY,
+                              contentWidth,
+                              _textColor,
+                              TFT_WHITE,
+                              false);
 }
 
 void TextView::onMeasure(int16_t widthMeasureSpec, int16_t heightMeasureSpec) {
     int16_t measuredWidth = 0;
     int16_t measuredHeight = 0;
-    
-    // 处理宽度测量
+
     if (_width == MATCH_PARENT) {
-        // 如果是MATCH_PARENT，则使用父容器的宽度限制
         measuredWidth = MeasureSpec::getSize(widthMeasureSpec);
     } else if (_width == WRAP_CONTENT) {
-        // 如果是WRAP_CONTENT，则根据文本内容决定，但不超过父容器限制
-        m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
-        int16_t textWidth = tempDisplay.textWidth(_text.c_str()) + getPaddingLeft() + getPaddingRight();
-        int16_t specSize = MeasureSpec::getSize(widthMeasureSpec);
-        MeasureSpecMode specMode = MeasureSpec::getMode(widthMeasureSpec);
-        
+        const int16_t desiredWidth = getDesiredWidth();
+        const int16_t specSize = MeasureSpec::getSize(widthMeasureSpec);
+        const MeasureSpecMode specMode = MeasureSpec::getMode(widthMeasureSpec);
+
         if (specMode == MeasureSpecMode::EXACTLY) {
             measuredWidth = specSize;
         } else if (specMode == MeasureSpecMode::AT_MOST) {
-            measuredWidth = std::min(textWidth, specSize);
+            measuredWidth = std::min(desiredWidth, specSize);
         } else {
-            measuredWidth = textWidth;
+            measuredWidth = desiredWidth;
         }
     } else {
-        // 指定具体数值
         measuredWidth = _width;
     }
-    
-    // 处理高度测量
+
     if (_height == MATCH_PARENT) {
-        // 如果是MATCH_PARENT，则使用父容器的高度限制
         measuredHeight = MeasureSpec::getSize(heightMeasureSpec);
     } else if (_height == WRAP_CONTENT) {
-        // 如果是WRAP_CONTENT，则根据文本内容决定，但不超过父容器限制
-        m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
-        int16_t textHeight = tempDisplay.fontHeight() + getPaddingTop() + getPaddingBottom();
-        int16_t specSize = MeasureSpec::getSize(heightMeasureSpec);
-        MeasureSpecMode specMode = MeasureSpec::getMode(heightMeasureSpec);
-        
+        const int16_t desiredHeight = getDesiredHeight();
+        const int16_t specSize = MeasureSpec::getSize(heightMeasureSpec);
+        const MeasureSpecMode specMode = MeasureSpec::getMode(heightMeasureSpec);
+
         if (specMode == MeasureSpecMode::EXACTLY) {
             measuredHeight = specSize;
         } else if (specMode == MeasureSpecMode::AT_MOST) {
-            measuredHeight = std::min(textHeight, specSize);
+            measuredHeight = std::min(desiredHeight, specSize);
         } else {
-            measuredHeight = textHeight;
+            measuredHeight = desiredHeight;
         }
     } else {
-        // 指定具体数值
         measuredHeight = _height;
     }
-    
+
     _measuredWidth = measuredWidth;
     _measuredHeight = measuredHeight;
 }
 
 int16_t TextView::getDesiredWidth() const {
-    m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
-    return tempDisplay.textWidth(_text.c_str()) + getPaddingLeft() + getPaddingRight();
+    auto& fontSvc = font_engine::FontEngineService::getInstance();
+    if (fontSvc.isReady()) {
+        const auto layout = fontSvc.engine().layoutText(_text, 32767);
+        return static_cast<int16_t>(layout.width + getPaddingLeft() + getPaddingRight());
+    }
+    return static_cast<int16_t>(_text.size() * 8 + getPaddingLeft() + getPaddingRight());
 }
 
 int16_t TextView::getDesiredHeight() const {
-    m5gfx::M5GFX tempDisplay; // 创建临时显示对象以获取字体信息
-    return tempDisplay.fontHeight() + getPaddingTop() + getPaddingBottom();
+    auto& fontSvc = font_engine::FontEngineService::getInstance();
+    if (fontSvc.isReady()) {
+        const auto layout = fontSvc.engine().layoutText(_text, 32767);
+        return static_cast<int16_t>(layout.height + getPaddingTop() + getPaddingBottom());
+    }
+    return static_cast<int16_t>(16 + getPaddingTop() + getPaddingBottom());
 }
