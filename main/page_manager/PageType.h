@@ -7,6 +7,7 @@ enum class PageType {
     UNKNOWN = 0,
     FILE_BROWSER,
     SETTINGS,
+    SETTINGS_SUB,
     READER,
     MENU,
     DIALOG,

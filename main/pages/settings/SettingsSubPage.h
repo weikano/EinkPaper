@@ -6,13 +6,14 @@
 #include "../../ui_kit/FrameLayout.h"
 #include "../../ui_kit/LinearLayout.h"
 #include "../../ui_kit/TextView.h"
+#include "../../ui_kit/View.h"
 
 #include <vector>
 
-class SettingsPage : public Page {
+class SettingsSubPage : public Page {
 public:
-    SettingsPage();
-    ~SettingsPage() override;
+    SettingsSubPage();
+    ~SettingsSubPage() override;
 
     void onCreate() override;
     void onStart() override;
@@ -22,19 +23,23 @@ public:
     void onDestroy() override;
 
 private:
-    struct SettingItemBinding {
-        SettingKey key;
-        TextView* valueView;
+    class OptionItemView;
+
+    struct OptionViewBinding {
+        int value;
+        OptionItemView* view;
     };
 
-    void addSettingItem(SettingKey key);
-    void refreshConfigValues();
+    void onOptionSelected(int value);
+    void refreshSelection();
 
     FrameLayout* _layout = nullptr;
     LinearLayout* _rootContainer = nullptr;
     LinearLayout* _headerRow = nullptr;
-    LinearLayout* _listContainer = nullptr;
+    LinearLayout* _optionsContainer = nullptr;
     Button* _backButton = nullptr;
     TextView* _titleView = nullptr;
-    std::vector<SettingItemBinding> _itemBindings;
+
+    SettingKey _settingKey = SettingKey::Language;
+    std::vector<OptionViewBinding> _optionBindings;
 };

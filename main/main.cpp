@@ -11,6 +11,7 @@
 #include "page_manager/PageManager.h"
 #include "pages/file_browser/PagedFileBrowserPage.h"
 #include "pages/settings/SettingsPage.h"
+#include "pages/settings/SettingsSubPage.h"
 #include "pages/launcher/LauncherPage.h"
 #include "pages/message/MessagePage.h"
 #include "refresh_counter/RefreshCounter.h"
@@ -53,6 +54,8 @@ static void initPageManager()
     // 注册设置页面 - 用于应用程序配置和设置
     pageManager.registerPage(PageType::SETTINGS, []()
                              { return std::make_unique<SettingsPage>(); });
+    pageManager.registerPage(PageType::SETTINGS_SUB, []()
+                             { return std::make_unique<SettingsSubPage>(); });
     
     // 注册菜单页面 - 作为应用程序的主菜单/启动器
     pageManager.registerPage(PageType::MENU, []()

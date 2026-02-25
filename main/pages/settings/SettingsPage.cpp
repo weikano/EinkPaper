@@ -1,48 +1,63 @@
 #include "SettingsPage.h"
-#include "page_manager/PageManager.h"
+
+#include "../../config/DeviceConfigManager.h"
+#include "../../page_manager/PageManager.h"
+#include "../../page_manager/PageType.h"
 #include "esp_log.h"
+
+#include <memory>
 
 static const char* TAG = "SettingsPage";
 
-SettingsPage::SettingsPage() 
-    : Page(PageType::SETTINGS, "Settings"), _layout(nullptr), _backButton(nullptr) {
+SettingsPage::SettingsPage() : Page(PageType::SETTINGS, "Settings") {
     ESP_LOGI(TAG, "SettingsPage constructed");
 }
 
 SettingsPage::~SettingsPage() {
     ESP_LOGI(TAG, "SettingsPage destructed");
-    // 不需要手动删除控件，因为它们是_layout 的子控件，会在_layout 析构时自动清理
 }
 
 void SettingsPage::onCreate() {
     ESP_LOGI(TAG, "SettingsPage onCreate");
-    
-    // 创建主布局
-    auto screenWidth = M5.Display.width();
-    auto screenHeight = M5.Display.height();
+
+    const int16_t screenWidth = M5.Display.width();
+    const int16_t screenHeight = M5.Display.height();
+
     _layout = new FrameLayout(screenWidth, screenHeight);
-    
-    // 创建返回按钮
-    _backButton = new Button(200, 60);
+
+    _rootContainer = new LinearLayout(MATCH_PARENT, MATCH_PARENT, LinearLayout::Orientation::VERTICAL);
+    _rootContainer->setPadding(12, 12, 12, 12);
+    _rootContainer->setSpacing(10);
+
+    _headerRow = new LinearLayout(MATCH_PARENT, 72, LinearLayout::Orientation::HORIZONTAL);
+    _headerRow->setSpacing(10);
+
+    _backButton = new Button(96, 56);
     _backButton->setText("返回");
-    _backButton->setOnClickListener([this]() {
-        ESP_LOGI(TAG, "Back button clicked");
-        // 使用PageManager返回上一个页面
-        PageManager::getInstance().goBack();
-    });
-    
-    // 手动设置按钮居中位置
-    int16_t buttonX = (screenWidth - _backButton->getWidth()) / 2;
-    int16_t buttonY = (screenHeight - _backButton->getHeight()) / 2;
-    _backButton->setPosition(buttonX, buttonY);
-    
-    // 添加按钮到布局
-    _layout->addChild(_backButton);
-    
-    // 设置页面根视图
+    _backButton->setOnClickListener([]() { PageManager::getInstance().goBack(); });
+
+    _titleView = new TextView(screenWidth - 130, 56);
+    _titleView->setText("设置");
+    _titleView->setTextAlign(1);
+
+    _headerRow->addChild(_backButton);
+    _headerRow->addChild(_titleView);
+
+    _listContainer = new LinearLayout(MATCH_PARENT, MATCH_PARENT, LinearLayout::Orientation::VERTICAL);
+    _listContainer->setSpacing(10);
+
+    addSettingItem(SettingKey::Language);
+    addSettingItem(SettingKey::RefreshMode);
+    addSettingItem(SettingKey::FontSize);
+    addSettingItem(SettingKey::AutoSleep);
+
+    _rootContainer->addChild(_headerRow);
+    _rootContainer->addChild(_listContainer);
+    _layout->addChild(_rootContainer);
+
     setRootView(_layout);
-    
-    // 调用父类方法
+    refreshConfigValues();
+
     Page::onCreate();
 }
 
@@ -53,13 +68,12 @@ void SettingsPage::onStart() {
 
 void SettingsPage::onResume() {
     ESP_LOGI(TAG, "SettingsPage onResume");
-    // 可以在这里加载设置数据
+    refreshConfigValues();
     Page::onResume();
 }
 
 void SettingsPage::onPause() {
     ESP_LOGI(TAG, "SettingsPage onPause");
-    // 可以在这里保存设置数据
     Page::onPause();
 }
 
@@ -70,5 +84,52 @@ void SettingsPage::onStop() {
 
 void SettingsPage::onDestroy() {
     ESP_LOGI(TAG, "SettingsPage onDestroy");
+
+    _itemBindings.clear();
+    _titleView = nullptr;
+    _backButton = nullptr;
+    _listContainer = nullptr;
+    _headerRow = nullptr;
+    _rootContainer = nullptr;
+    _layout = nullptr;
+
     Page::onDestroy();
+}
+
+void SettingsPage::addSettingItem(SettingKey key) {
+    auto* itemLayout = new LinearLayout(MATCH_PARENT, 86, LinearLayout::Orientation::VERTICAL);
+    itemLayout->setPadding(12, 8, 12, 8);
+    itemLayout->setSpacing(4);
+    itemLayout->setBorderWidth(1);
+
+    auto* titleView = new TextView(MATCH_PARENT, 34);
+    titleView->setText(getSettingTitle(key));
+
+    auto* valueView = new TextView(MATCH_PARENT, 30);
+    valueView->setText("-");
+
+    auto openSubPage = [key]() {
+        auto params = std::make_shared<SettingsSubPageParams>();
+        params->settingKey = key;
+        PageManager::getInstance().startActivity(PageType::SETTINGS_SUB, params);
+    };
+
+    itemLayout->setOnClickListener(openSubPage);
+    titleView->setOnClickListener(openSubPage);
+    valueView->setOnClickListener(openSubPage);
+
+    itemLayout->addChild(titleView);
+    itemLayout->addChild(valueView);
+    _listContainer->addChild(itemLayout);
+
+    _itemBindings.push_back({key, valueView});
+}
+
+void SettingsPage::refreshConfigValues() {
+    const auto& config = DeviceConfigManager::getInstance().getConfig();
+    for (auto& binding : _itemBindings) {
+        if (binding.valueView) {
+            binding.valueView->setText(getSettingCurrentValueText(binding.key, config));
+        }
+    }
 }
